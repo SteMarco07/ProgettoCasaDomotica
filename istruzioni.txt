@@ -1,0 +1,15 @@
+BASE: GESTORE LAMPADINE
+
+GRAFICA RAAAAAAAAAAAAH
+
+- Scegli un'immagine su google per la piantina
+
+- Non complicarti la vita (opzionale)
+
+- Chiudi la finestra alla fine
+
+- Consigliata classe che gestisce la posizione delle lampadine
+
+- In futuro file
+
+DATA DI CONSEGNA: 26 NOVEMBRE
