@@ -17,7 +17,7 @@ public class Lampadina {
     public Lampadina(String nome, int potenza) {
         this.nome = nome;
         this.potenza = potenza;
-        this.colore = "Giallo";
+        this.colore = "Bianco";
         this.acceso = false;
         this.lum = 0;
     }
@@ -48,6 +48,7 @@ public class Lampadina {
             this.nome = nome;
         }
     }
+
 
     /**
      * Ritorna come String il nome della lampadina

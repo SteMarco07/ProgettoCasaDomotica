@@ -5,7 +5,7 @@ import java.util.ArrayList;
  */
 public class Stanza {
     private final String nome;
-    private ArrayList<Lampadina> lampadine;
+    private ArrayList<Presa> prese;
 
     /**
      * Costruttore che inizializza la stanza con un nome.
@@ -13,7 +13,21 @@ public class Stanza {
      */
     public Stanza (String nome){
         this.nome = nome;
-        this.lampadine = new ArrayList<Lampadina>();
+        this.prese = new ArrayList<Presa>();
+    }
+
+    /**
+     * Dato il nome di una presa, restutisce la sua posizione, se non la trova dà -1
+     * @param nomePresa Nome della presa (String)
+     * @return Ritorna la presa se è stata trovata, altrimenti ritorna null
+     */
+    public Presa cercaPresa (String nomePresa){
+        for(var i : prese){
+            if(i.getNome().equals(nomePresa)){
+                return i;
+            }
+        }
+        return null;
     }
 
     /**
@@ -23,8 +37,8 @@ public class Stanza {
      */
     public int cercaLampadina(String nome){
 
-        for(int i = 0; i < lampadine.size(); ++i){
-            if(lampadine.get(i).getNome().equals(nome)){
+        for(int i = 0; i < prese.size(); ++i){
+            if(prese.get(i).getLampadina().getNome().equals(nome)){
                 return i;
             }
         }
@@ -35,8 +49,8 @@ public class Stanza {
      * Aggiunge una nuova lampadina al sistema.
      * @param l Lampadina (Lampadina)
      */
-    public void aggiungi(Lampadina l){
-        lampadine.add(l);
+    public void aggiungi(Presa l){
+        prese.add(l);
     }
 
     /**
@@ -47,7 +61,7 @@ public class Stanza {
     public boolean rimuovi(String nome){
         int pos = cercaLampadina(nome);
         if(pos >= 0){
-            lampadine.remove(pos);
+            prese.remove(pos);
             return true;
         } else {
             return false;
@@ -55,21 +69,21 @@ public class Stanza {
     }
 
     /**
-     * Accende tutte le lampadine del sistema
+     * Accende tutte le lampadine della stanza
      */
     public void accendiTutte(){
-        for (var i : lampadine) {
+        for (var i : prese) {
             if (i != null) {
-                i.accendi();
+                i.getLampadina().accendi();
             }
         }
     }
     /**
-     * Spegne tutte le lampadine del sistema
+     * Spegne tutte le lampadine della stanza
      */
     public void spegniTutte(){
-        for (var i : lampadine) {
-            i.spegni();
+        for (var i : prese) {
+            i.getLampadina().spegni();
         }
     }
 
@@ -79,9 +93,9 @@ public class Stanza {
      */
     public float getPotenzaSistema(){
         float ritorno = 0;
-        for(var i : lampadine){
-            if(i.isAcceso()){
-                ritorno+=i.getPotenzaIstantanea();
+        for(var i : prese){
+            if(i.getLampadina().isAcceso()){
+                ritorno+=i.getLampadina().getPotenzaIstantanea();
             }
         }
         return ritorno;
@@ -95,7 +109,7 @@ public class Stanza {
     public void modificaColore(String nome, String colore){
         int pos = this.cercaLampadina(nome);
         if(pos >= 0){
-            this.lampadine.get(pos).setColore(colore);
+            this.prese.get(pos).getLampadina().setColore(colore);
         }
     }
 
@@ -107,7 +121,7 @@ public class Stanza {
     public void modificaLum(String nome, int lum){
         int pos = this.cercaLampadina(nome);
         if(pos >= 0){
-            this.lampadine.get(pos).setLum(lum);
+            this.prese.get(pos).getLampadina().setLum(lum);
         }
     }
 
@@ -118,7 +132,7 @@ public class Stanza {
     public void accendiLampadina(String nome){
         int pos = this.cercaLampadina(nome);
         if(pos >= 0){
-            lampadine.get(pos).accendi();
+            prese.get(pos).getLampadina().accendi();
         }
     }
     /**
@@ -126,15 +140,15 @@ public class Stanza {
      * @param nome Nome (String)
      */
     public void spegniLampadina(String nome){
-        lampadine.get(this.cercaLampadina(nome)).spegni();
+        prese.get(this.cercaLampadina(nome)).getLampadina().spegni();
     }
 
     /**
      * Stampa tutto il sistema e le caratteristiche di ciascuna lampadina.
      */
     public void stampaSistema(){
-        for (var i : lampadine){
-            System.out.println(i);
+        for (var i : prese){
+            System.out.println(i.getLampadina());
         }
     }
 

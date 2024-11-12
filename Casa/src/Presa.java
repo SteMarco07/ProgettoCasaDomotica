@@ -57,5 +57,5 @@ public class Presa {
      */
     public void setLampadina(Lampadina lampadina) {
         this.lampadina = lampadina;
-    }
+    }   
 }

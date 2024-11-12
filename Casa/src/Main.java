@@ -1,4 +1,7 @@
-    import java.util.Scanner;
+
+import graphics.Canvas;
+
+import java.util.Scanner;
 
     public class Main {
         public static void stampaMenu(){
@@ -101,6 +104,6 @@
                     }
                 }
             }
-            //chiudi
+            Canvas.getInstance().Stop();
         }
     }
