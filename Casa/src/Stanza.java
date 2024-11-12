@@ -16,12 +16,13 @@ public class Stanza {
         this.prese = new ArrayList<Presa>();
     }
 
+    //TODO: Metodi di ricerca
     /**
-     * Dato il nome di una presa, restutisce la sua posizione, se non la trova dà -1
+     * Cerca una presa
      * @param nomePresa Nome della presa (String)
      * @return Ritorna la presa se è stata trovata, altrimenti ritorna null
      */
-    public Presa cercaPresa (String nomePresa){
+    public Presa getPresa (String nomePresa){
         for(var i : prese){
             if(i.getNome().equals(nomePresa)){
                 return i;
@@ -31,42 +32,75 @@ public class Stanza {
     }
 
     /**
-     * Cerca la posizione di una lampadina dato il nome. Se non la trova, restituisce -1.
-     * @param nome Nome della lampadina (String)
-     * @return Posizione lampadina (int)
+     * Dato il nome di una lampadina
+     * @param nomeLampadina Nome della presa (String)
+     * @return Ritorna la presa se è stata trovata, altrimenti ritorna null
      */
-    public int cercaLampadina(String nome){
+    public Lampadina getLampadina (String nomeLampadina){
+        for(var i : prese){
+            if(i.getLampadina().getNome().equals(nomeLampadina)){
+                return i.getLampadina();
+            }
+        }
+        return null;
+    }
 
-        for(int i = 0; i < prese.size(); ++i){
-            if(prese.get(i).getLampadina().getNome().equals(nome)){
+    /**
+     * Crerca una presa in base al nome della lampadina
+     * @param nomeLampadina Nome della lampadina (String)
+     * @return La presa se è stata trovata, altrimenti null
+     */
+    public Presa getPresaNomeLampadina(String nomeLampadina){
+        Lampadina lampadina = getLampadina(nomeLampadina);
+        for(var i : prese){
+            if(i.getLampadina() == lampadina){
                 return i;
             }
         }
-        return -1;
+        return null;
     }
 
+
+    //TODO: Metodi di aggiunta
     /**
-     * Aggiunge una nuova lampadina al sistema.
-     * @param l Lampadina (Lampadina)
+     * Aggiunge una nuova presa alla stanza.
+     * @param presa Presa
+     * @return Ritorna true se è stata aggiunta, altrimenti false se è già presente
      */
-    public void aggiungi(Presa l){
-        prese.add(l);
+    public boolean addPresa(Presa presa){
+        Presa p = getPresa(presa.getNome());
+        if (p == null) {
+            prese.add(p);
+            return true;
+        }
+        return false;
     }
 
+    public boolean addLampadina (String nomePresa, Lampadina lampadina) {
+        Presa p = getPresa(presa.getNome());
+        if (p == null) {
+            prese.add(p);
+            return true;
+        }
+    }
+
+
+    //TODO: Metodi di rimozione
     /**
      * Rimuove una lampadina dato il nome.
-     * @param nome Nome (String)
+     * @param nomeLampadina Nome (String)
      * @return true se la lampadina è stata rimossa, false se non è stata rimossa
      */
-    public boolean rimuovi(String nome){
-        int pos = cercaLampadina(nome);
-        if(pos >= 0){
-            prese.remove(pos);
+    public boolean rimuoviLampadina(String nomeLampadina){
+        Presa p = getPresaNomeLampadina(nomeLampadina);
+        if(p != null){
+            p.setLampadina(null);
             return true;
         } else {
             return false;
         }
     }
+
 
     /**
      * Accende tutte le lampadine della stanza

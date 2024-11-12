@@ -8,6 +8,8 @@ public class SistemaDomotico {
 
     private ArrayList<Stanza> stanze;
 
+
+    //TODO: Costruttori
     /**
      * Costruttore vuoto
      */
@@ -16,6 +18,8 @@ public class SistemaDomotico {
     }
 
 
+
+    //TODO: Metodi di ricerca
     /**
      * Cerca una stanza all'interno del sistema domotico
      * @param nomeStanza Nome della stanza che si desidera cercare (String)
@@ -31,25 +35,25 @@ public class SistemaDomotico {
     }
 
     /**
-     * Cre
-     * @param nomeStanza
-     * @param nomePresa
-     * @param nomeLampadina
-     * @return
+     * Cerca una lampadina data la sua presa
+     * @param presa Presa
+     * @return Ritorna la lampadina se è stata trovata, altrimenti ritorna null
+     */
+    public Lampadina getLampadinaPresa(Presa presa){
+        return presa.getLampadina();
+    }
+    /**
+     * Cerca una lampadina all'interno del sistema
+     * @param nomeStanza Nome della stanza (String)
+     * @param nomePresa Nome della presa (String)
+     * @return Ritorna la lampadina se  è stata trovata, altrimenti ritorna null
      */
 
-    public Lampadina cercaLampadina(String nomeStanza, String nomePresa, String nomeLampadina){
-        Stanza s = cercaStanza(nomeStanza);
-        if (s != null) {
-            Presa p = s.cercaPresa(nomePresa);
-            if (p != null) {
-                return p.getLampadina();
-            }
-        }
-        return  null;
+    public Lampadina getLampadinaNome(String nomeStanza, String nomeLampadina){
+        return cercaStanza(nomeStanza).cercaLampadina(nomeLampadina);
     }
 
-
+    //TODO: Metodi di aggiunta
     /**
      * Aggiunge una nuova lampadina a una presa, dato il nome della stanza e della presa che si desidera.
      * Se è già presente una lampadina, non la sostituisce.
@@ -76,7 +80,7 @@ public class SistemaDomotico {
      * @param nome Nome (String)
      */
     public void rimuoviLampadina(String nomeStanza, String nomePresa){
-        cercaStanza(nomeStanza).cercaPresa(nomePresa) = null;
+        cercaStanza(nomeStanza).cercaPresa(nomePresa).setLampadina(null);
     }
 
     /**
@@ -89,12 +93,24 @@ public class SistemaDomotico {
             }
         }
     }
+
+    /**
+     * Accende tutte le lampadine di una stanza, dato il suo nome
+     * @param nomeStanza Nome stanza
+     */
+    public void accendiStanza(String nomeStanza){
+        Stanza stanza = cercaStanza(nomeStanza);
+        if(stanza != null){
+            stanza.accendiTutte();
+        }
+    }
+
     /**
      * Spegne tutte le lampadine del sistema
      */
     public void spegniTutte(){
-        for (var i : lampadine) {
-                i.spegni();
+        for (var i : stanze) {
+                i.spegniTutte();
         }
     }
 
@@ -104,10 +120,8 @@ public class SistemaDomotico {
      */
     public float getPotenzaSistema(){
         float ritorno = 0;
-        for(var i : lampadine){
-                if(i.isAcceso()){
-                    ritorno+=i.getPotenzaIstantanea();
-            }
+        for(var i : stanze){
+                ritorno+=i.getPotenzaSistema();
         }
         return ritorno;
     }
@@ -117,8 +131,9 @@ public class SistemaDomotico {
      * @param nome Nome (String)
      * @param colore Colore (String)
      */
-    public void modificaColore(String nome, String colore){
-        int pos = this.cercaLampadina(nome);
+    public void modificaColore(String nomeStanza, String nomePresa, String nome, String colore){
+        Lampadina lampadina = cercaLampadina(nomeStanza, nomePresa);
+
         if(pos >= 0){
             this.lampadine.get(pos).setColore(colore);
         }
@@ -151,7 +166,7 @@ public class SistemaDomotico {
      * @param nome Nome (String)
      */
     public void spegniLampadina(String nome){
-        cercaLampadina(nome)
+        cercaLampadina(nome);
         lampadine.get(this.cercaLampadina(nome)).spegni();
     }
 
