@@ -46,7 +46,7 @@ public class Stanza {
     }
 
     /**
-     * Crerca una presa in base al nome della lampadina
+     * Cerca una presa in base al nome della lampadina
      * @param nomeLampadina Nome della lampadina (String)
      * @return La presa se è stata trovata, altrimenti null
      */
@@ -76,12 +76,22 @@ public class Stanza {
         return false;
     }
 
+    /**
+     * Aggiunge una nuova lampadina
+     * @param nomePresa Nome della presa a cui si vuole aggiungere una presa
+     * @param lampadina Lampadina
+     * @return
+     */
     public boolean addLampadina (String nomePresa, Lampadina lampadina) {
-        Presa p = getPresa(presa.getNome());
-        if (p == null) {
-            prese.add(p);
-            return true;
+        Presa p = getPresa(nomePresa);
+        if (p != null && p.getLampadina() == null) {
+            Lampadina l  = getLampadina(lampadina.getNome());
+            if (l == null) {
+                p.setLampadina(lampadina);
+                return true;
+            }
         }
+        return false;
     }
 
 
@@ -137,44 +147,49 @@ public class Stanza {
 
     /**
      * Modifica il colore di una lampadina dato il suo nome.
-     * @param nome Nome (String)
+     * @param nomeLampadina Nome (String)
      * @param colore Colore (String)
      */
-    public void modificaColore(String nome, String colore){
-        int pos = this.cercaLampadina(nome);
-        if(pos >= 0){
-            this.prese.get(pos).getLampadina().setColore(colore);
+    public void setColore(String nomeLampadina, String colore){
+        Lampadina l = getLampadina(nomeLampadina);
+        if (l != null) {
+            l.setColore(colore);
         }
     }
 
     /**
      * Modifica la luminosità di una lampadina dato il suo nome.
-     * @param nome Nome (String)
+     * @param nomeLampadina Nome (String)
      * @param lum Luminosità (int)
      */
-    public void modificaLum(String nome, int lum){
-        int pos = this.cercaLampadina(nome);
-        if(pos >= 0){
-            this.prese.get(pos).getLampadina().setLum(lum);
+    public void setLum(String nomeLampadina, int lum){
+        Lampadina l = getLampadina(nomeLampadina);
+        if (l != null) {
+            l.setLum(lum);
         }
     }
 
     /**
      * Accende una lampadina di cui si passa il nome.
-     * @param nome Nome (String)
+     * @param nomeLampadina Nome della lampadina (String)
      */
-    public void accendiLampadina(String nome){
-        int pos = this.cercaLampadina(nome);
-        if(pos >= 0){
-            prese.get(pos).getLampadina().accendi();
+    public void accendiLampadina(String nomeLampadina){
+        for(var i : prese){
+            if(i.getLampadina().getNome().equals(nomeLampadina)){
+                i.getLampadina().accendi();
+            }
         }
     }
     /**
      * Spegne una lampadina di cui si passa il nome.
-     * @param nome Nome (String)
+     * @param nomeLampadina Nome della lampadina (String)
      */
-    public void spegniLampadina(String nome){
-        prese.get(this.cercaLampadina(nome)).getLampadina().spegni();
+    public void spegniLampadina(String nomeLampadina){
+        for(var i : prese){
+            if(i.getLampadina().getNome().equals(nomeLampadina)){
+                i.getLampadina().spegni();
+            }
+        }
     }
 
     /**

@@ -1,5 +1,6 @@
 
 import graphics.Canvas;
+import graphics.Picture;
 
 import java.util.Scanner;
 
@@ -53,17 +54,18 @@ import java.util.Scanner;
 
         public static void main(String[] args) {
 
-            String nomeTemp, coloreTemp;
-            int lumTemp;
-            int poTemp;
+        Picture picture = new Picture("../assets/casa.jpg");
 
-            int scelta = -1;
-            Scanner in = new Scanner(System.in);
+        picture.draw();
 
-            SistemaDomotico sistemaDomotico = new SistemaDomotico();
+        String a;
 
-            
+        Scanner in = new Scanner(System.in);
 
-            Canvas.getInstance().Stop();
+        a = in.next();
+
+
+
+        Canvas.getInstance().Stop();
         }
     }
