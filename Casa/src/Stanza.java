@@ -67,7 +67,7 @@ public class Stanza {
      * @param presa Presa
      * @return Ritorna true se è stata aggiunta, altrimenti false se è già presente
      */
-    public boolean addPresa(Presa presa){
+    public boolean aggiungiPresa(Presa presa){
         Presa p = getPresa(presa.getNome());
         if (p == null) {
             prese.add(p);
@@ -82,7 +82,7 @@ public class Stanza {
      * @param lampadina Lampadina
      * @return
      */
-    public boolean addLampadina (String nomePresa, Lampadina lampadina) {
+    public boolean aggiungiLampadina (String nomePresa, Lampadina lampadina) {
         Presa p = getPresa(nomePresa);
         if (p != null && p.getLampadina() == null) {
             Lampadina l  = getLampadina(lampadina.getNome());
@@ -96,6 +96,21 @@ public class Stanza {
 
 
     //TODO: Metodi di rimozione
+
+    /**
+     * Rimuove una presa
+     * @param nomePresa Nome della presa (String)
+     * @return true se la presa è stata rimossa, false se non è stata rimossa
+     */
+    public boolean rimuoviPresa(String nomePresa) {
+        Presa p = getPresa(nomePresa);
+        if (p != null) {
+            prese.remove(p);
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Rimuove una lampadina dato il nome.
      * @param nomeLampadina Nome (String)
@@ -110,6 +125,8 @@ public class Stanza {
             return false;
         }
     }
+
+    //TODO: metodi vari
 
 
     /**
