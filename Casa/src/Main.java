@@ -1,7 +1,6 @@
 
 import graphics.Canvas;
 import graphics.Picture;
-
 import java.util.Scanner;
 
     public class Main {
@@ -39,9 +38,9 @@ import java.util.Scanner;
                      1: Seleziona la lampadina \s
                      2: Aggiungi una lampadina \s
                      3: Rimuovi una lampadina \s
-                     4: Accendi la lampadina
-                     5: Spegni la lampadina
-                     6: Modifica il colore 
+                     4: Accendi la lampadina \s
+                     5: Spegni la lampadina \s
+                     6: Modifica il colore \s
                     """;
                 break;
 

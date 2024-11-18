@@ -110,10 +110,12 @@ public class Lampadina {
     }
 
     /**
-     * metodo che ritorna la potenza istantanea
+     * Metodo che ritorna la potenza istantanea
      * @return Potenza Istantanea
      */
     public float getPotenzaIstantanea(){
         return (this.potenza/(float)this.lum)*100.0f;
     }
 }
+
+

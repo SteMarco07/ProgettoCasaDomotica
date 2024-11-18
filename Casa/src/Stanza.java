@@ -1,3 +1,5 @@
+import Eccezioni.*;
+
 import java.util.ArrayList;
 
 /**
@@ -28,7 +30,7 @@ public class Stanza {
                 return i;
             }
         }
-        return null;
+        throw new PresaNonTrovata();
     }
 
     /**
@@ -36,13 +38,14 @@ public class Stanza {
      * @param nomeLampadina Nome della presa (String)
      * @return Ritorna la presa se è stata trovata, altrimenti ritorna null
      */
-    public Lampadina getLampadina (String nomeLampadina){
+    public Lampadina getLampadina(String nomeLampadina) throws LampadinaNonTrovata {
         for(var i : prese){
             if(i.getLampadina().getNome().equals(nomeLampadina)){
                 return i.getLampadina();
             }
         }
-        return null;
+        //lancia l'eccezione "Eccezioni.LampadinaNonTrovata"
+        throw new LampadinaNonTrovata();
     }
 
     /**
@@ -57,41 +60,46 @@ public class Stanza {
                 return i;
             }
         }
-        return null;
+        throw new LampadinaNonTrovata();
     }
 
 
     //TODO: Metodi di aggiunta
+
     /**
-     * Aggiunge una nuova presa alla stanza.
-     * @param presa Presa
-     * @return Ritorna true se è stata aggiunta, altrimenti false se è già presente
+     * Aggiunge una nuova presa alla stanza
+     * @param presa La presa da aggiunfere (Presa)
+     * @throws PresaEsistente
      */
-    public boolean aggiungiPresa(Presa presa){
+    public void aggiungiPresa(Presa presa) throws PresaEsistente{
         Presa p = getPresa(presa.getNome());
         if (p == null) {
             prese.add(p);
-            return true;
+        } else {
+            throw new PresaEsistente();
         }
-        return false;
     }
 
     /**
      * Aggiunge una nuova lampadina
      * @param nomePresa Nome della presa a cui si vuole aggiungere una presa
      * @param lampadina Lampadina
-     * @return
+     * @return Booleano che rappresenta se è riuscito ad aggiungerla o meno
      */
-    public boolean aggiungiLampadina (String nomePresa, Lampadina lampadina) {
+    public void aggiungiLampadina (String nomePresa, Lampadina lampadina) throws LampadinaEsistente, PresaNonTrovata, PresaOccupata {
         Presa p = getPresa(nomePresa);
-        if (p != null && p.getLampadina() == null) {
-            Lampadina l  = getLampadina(lampadina.getNome());
-            if (l == null) {
-                p.setLampadina(lampadina);
-                return true;
+        if (p != null) {
+            if (p.getLampadina() == null) {
+                Lampadina l  = getLampadina(lampadina.getNome());
+                if (l == null) {
+                    p.setLampadina(lampadina);
+                }
+            } else {
+                throw new PresaOccupata();
             }
+        } else {
+            throw new PresaNonTrovata();
         }
-        return false;
     }
 
 
@@ -102,13 +110,12 @@ public class Stanza {
      * @param nomePresa Nome della presa (String)
      * @return true se la presa è stata rimossa, false se non è stata rimossa
      */
-    public boolean rimuoviPresa(String nomePresa) {
+    public void rimuoviPresa(String nomePresa) {
         Presa p = getPresa(nomePresa);
         if (p != null) {
             prese.remove(p);
-            return true;
         }
-        return false;
+        throw new PresaNonTrovata();
     }
 
     /**
@@ -116,19 +123,17 @@ public class Stanza {
      * @param nomeLampadina Nome (String)
      * @return true se la lampadina è stata rimossa, false se non è stata rimossa
      */
-    public boolean rimuoviLampadina(String nomeLampadina){
+    public boolean rimuoviLampadina(String nomeLampadina) throws LampadinaNonTrovata{
         Presa p = getPresaNomeLampadina(nomeLampadina);
         if(p != null){
             p.setLampadina(null);
             return true;
         } else {
-            return false;
+            throw new LampadinaNonTrovata();
         }
     }
 
     //TODO: metodi vari
-
-
     /**
      * Accende tutte le lampadine della stanza
      */
@@ -218,6 +223,10 @@ public class Stanza {
         }
     }
 
+    /**
+     * Restituisce il nome della stanza
+     * @return Nome della stanza (Stringa)
+     */
     public String getNome() {
         return nome;
     }

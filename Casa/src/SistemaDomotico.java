@@ -1,10 +1,13 @@
+import Eccezioni.LampadinaNonTrovata;
+import Eccezioni.PresaNonTrovata;
+import Eccezioni.StanzaNonTrovata;
+
 import java.util.ArrayList;
 
 /**
  * Classe che rappresenta un sistema domotico, con un numero indefinito di lampadine.
  */
 public class SistemaDomotico {
-
 
     private ArrayList<Stanza> stanze;
 
@@ -14,10 +17,13 @@ public class SistemaDomotico {
      * Costruttore vuoto
      */
     public SistemaDomotico (){
-        this.stanze = new ArrayList<Stanza>();
+        this.stanze = new ArrayList<>();
     }
 
+    //DA FARE: INPUT CON FILE
+    public SistemaDomotico(String nomeFile){
 
+    }
 
     //TODO: Metodi di ricerca
     /**
@@ -54,7 +60,7 @@ public class SistemaDomotico {
         if(stanza != null){
             return stanza.getLampadina(nomeLampadina);
         }
-        return null;
+        throw new LampadinaNonTrovata();
     }
 
     //TODO: Metodi di aggiunta
@@ -84,16 +90,18 @@ public class SistemaDomotico {
      * @param nomePresa Nome della presa (String)
      * @param nomeStanza Nome della stanza (String)
      */
-    public boolean RimuoviLampadinaNomePresa(String nomeStanza, String nomePresa){
+    public void RimuoviLampadinaNomePresa(String nomeStanza, String nomePresa){
         Stanza stanza = cercaStanza(nomeStanza);
         if(stanza != null){
             Presa presa = stanza.getPresa(nomePresa);
             if(presa != null){
                 presa.setLampadina(null);
-                return true;
+            } else {
+                throw new PresaNonTrovata();
             }
+        } else {
+            throw new StanzaNonTrovata();
         }
-        return false;
     }
 
     /**
@@ -140,47 +148,45 @@ public class SistemaDomotico {
     }
 
     /**
-     * Modifica il colore di una lampadina dato il suo nome.
-     * @param nome Nome (String)
+     * Modifica il colore di una lampadina dato il suo nome e quello della stanza in cui è.
+     * @param nomeLampadina Nome della lampadina (String)
+     * @param nomeStanza Nome della stanza (String)
      * @param colore Colore (String)
      */
-    public void modificaColoreLampadina(String nomeStanza, String nomePresa, String nomeLampadina, String colore){
-        Lampadina lampadina = getLampadinaNome(nomeStanza, nomePresa, nomeLampadina);
+    public void modificaColoreLampadina(String nomeStanza,String nomeLampadina, String colore){
+        Lampadina lampadina = getLampadinaNome(nomeStanza, nomeLampadina);
+        lampadina.setColore(colore);
 
-        if(pos >= 0){
-            this.lampadine.get(pos).setColore(colore);
-        }
     }
 
     /**
      * Modifica la luminosità di una lampadina dato il suo nome.
-     * @param nome Nome (String)
+     * @param nomeLampadina Nome della lampadina (String)
+     * @param nomeStanza Nome della stanza (String)
      * @param lum Luminosità (int)
      */
-    public void modificaLum(String nome, int lum){
-        int pos = this.cercaLampadina(nome);
-        if(pos >= 0){
-            this.lampadine.get(pos).setLum(lum);
-        }
+    public void modificaLum(String nomeStanza, String nomeLampadina, int lum){
+        Lampadina l = this.getLampadinaNome(nomeStanza, nomeLampadina);
+        l.setLum(lum);
     }
 
     /**
-     * Accende una lampadina di cui si passa il nome.
-     * @param nome Nome (String)
+     * Spegne una lampadina di cui si passa il suo nome e quello della stanza.
+     * @param nomeStanza Nome della stanza (String)
+     * @param nomeLampadina Nome della lampadina (String)
      */
-    public void accendiLampadina(String nome){
-        int pos = this.cercaLampadina(nome);
-        if(pos >= 0){
-            lampadine.get(pos).accendi();
-        }
+    public void accendiLampadina(String nomeStanza, String nomeLampadina){
+        Lampadina l = getLampadinaNome(nomeStanza, nomeLampadina);
+        l.accendi();
     }
     /**
-     * Spegne una lampadina di cui si passa il nome.
-     * @param nome Nome (String)
+     * Spegne una lampadina di cui si passa il suo nome e quello della stanza.
+     * @param nomeStanza Nome della stanza (String)
+     * @param nomeLampadina Nome della lampadina (String)
      */
-    public void spegniLampadina(String nome){
-        cercaLampadina(nome);
-        lampadine.get(this.cercaLampadina(nome)).spegni();
+    public void spegniLampadina(String nomeStanza, String nomeLampadina){
+        Lampadina l = getLampadinaNome(nomeStanza, nomeLampadina);
+        l.spegni();
     }
 
     /**
