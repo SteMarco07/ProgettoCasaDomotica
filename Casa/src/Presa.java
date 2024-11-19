@@ -1,3 +1,5 @@
+import Eccezioni.PresaOccupata;
+
 /**
  * Classe che rappresenta una presa a cui è collegata una e una sola lampadina.
  */
@@ -5,6 +7,7 @@ public class Presa {
     private final String nome;
     private final int X;
     private final int Y;
+    private boolean occupata;
     Lampadina lampadina;
 
     /**
@@ -15,6 +18,7 @@ public class Presa {
      */
     public Presa(String nome, int X, int Y){
         this.nome = nome;
+        this.occupata = false;
         this.X = X;
         this.Y = Y;
     }
@@ -51,11 +55,38 @@ public class Presa {
         return lampadina;
     }
 
+    public boolean isOccupata(){
+        return this.occupata;
+    }
+
     /**
      * Metodo che modifica la lampadina collegata
      * @param lampadina lampadina
      */
-    public void setLampadina(Lampadina lampadina) {
-        this.lampadina = lampadina;
-    }   
+    public void setLampadina(Lampadina lampadina) throws PresaOccupata{
+        if (this.occupata) {
+            throw new PresaOccupata();
+        } else {
+            this.lampadina = lampadina;
+            this.occupata = true;
+        }
+
+
+    }
+
+    public void rimuoviLampadina(){
+        this.occupata = false;
+        this.lampadina = null;
+    }
+
+    @Override
+    public String toString(){
+        String ritorno = nome + ';'+ X + ';' + Y + ';';
+        if(getLampadina() == null){
+            ritorno+="libera\n";
+        } else {
+            ritorno+="occupata;" + getLampadina().toString();
+        }
+        return ritorno;
+    }
 }

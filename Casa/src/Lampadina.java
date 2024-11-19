@@ -1,13 +1,15 @@
+import graphics.Color;
+
 /**
  * Classe che rappresenta una lampadina intelligente
  * che ha una potenza, nome, colore ed è accesa o spenta
  */
 public class Lampadina {
     private String nome;
-    private String colore;
     private int lum;
     private final float potenza;
     private boolean acceso;
+    Color colore;
 
     /**
      * Costruttore che inizializza una lampadina (colore giallo, luminosità 0, spenta)
@@ -17,9 +19,9 @@ public class Lampadina {
     public Lampadina(String nome, int potenza) {
         this.nome = nome;
         this.potenza = potenza;
-        this.colore = "Bianco";
         this.acceso = false;
         this.lum = 0;
+        colore = new Color(255,255,255);
     }
 
     /**
@@ -28,15 +30,14 @@ public class Lampadina {
      */
     @Override
     public String toString() {
-        String s = "Nome: " + this.nome + "\n" + "Colore: " + this.colore + "\n" + "Luminosita': " + this.lum + "\n";
+        String s = this.nome + ";" + this.potenza + ";" + this.lum + ";" + this.colore + ";";
 
         if (this.acceso) {
-            s += "Accesa";
+            s += "accesa";
         } else {
-            s += "Spenta";
+            s += "spenta";
         }
-
-        return s;
+        return s + "\n";
     }
 
     /**
@@ -60,10 +61,8 @@ public class Lampadina {
      * Modifica il colore della lampadina
      * @param colore Colore (String)
      */
-    public void setColore(String colore) {
-        if(colore != null){
-            this.colore = colore;
-        }
+    public void setColore(Color colore) {
+        this.colore = colore;
     }
 
     /**

@@ -1,4 +1,3 @@
-
 import graphics.Canvas;
 import graphics.Picture;
 import java.util.Scanner;
@@ -34,7 +33,7 @@ import java.util.Scanner;
                     opzioni = """
                     ____________________________________ \s
                     \t OPZIONI LAMPADINA:
-                     0: Esci\s
+                     0: Esci \s
                      1: Seleziona la lampadina \s
                      2: Aggiungi una lampadina \s
                      3: Rimuovi una lampadina \s
@@ -53,18 +52,14 @@ import java.util.Scanner;
 
         public static void main(String[] args) {
 
-        Picture picture = new Picture("../assets/casa.jpg");
-
-        picture.draw();
-
-        String a;
-
-        Scanner in = new Scanner(System.in);
-
-        a = in.next();
-
-
-
-        Canvas.getInstance().Stop();
+       SistemaDomotico sistemaDomotico = new SistemaDomotico();
+       sistemaDomotico.aggiungiStanza(new Stanza("Stanza 1"));
+       sistemaDomotico.aggiungiPresa("Stanza 1", new Presa("Presa 1",1,1));
+       sistemaDomotico.aggiungiLampadina("Stanza 1", "Presa 1", new Lampadina("Lampadina 1", 1));
+       sistemaDomotico.aggiungiPresa("Stanza 1", new Presa("Presa 2",2,2));
+       sistemaDomotico.getLampadinaNome("Stanza 1", "Lampadina 1").setLum(1);
+       sistemaDomotico.getLampadinaNome("Stanza 1", "Lampadina 1").setColore("Arancione");
+       sistemaDomotico.aggiungiLampadina("Stanza 1", "Presa 2", new Lampadina("Lampadina 2", 2));
+            System.out.println(sistemaDomotico.toString());
         }
     }
