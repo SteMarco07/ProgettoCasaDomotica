@@ -1,4 +1,6 @@
 import Eccezioni.PresaOccupata;
+import graphics.Picture;
+import graphics.Text;
 
 /**
  * Classe che rappresenta una presa a cui è collegata una e una sola lampadina.
@@ -8,7 +10,9 @@ public class Presa {
     private final int X;
     private final int Y;
     private boolean occupata;
-    Lampadina lampadina;
+    private Lampadina lampadina;
+    private final Picture icona = new Picture();
+    private Text testo;
 
     /**
      * Costruttore che inizializza una presa
@@ -16,14 +20,14 @@ public class Presa {
      * @param X coordinate X per la rappresentazione grafica
      * @param Y coordinate Y per la rappresentazione grafica
      */
-    public Presa(String nome, int X, int Y){
+    public Presa(String nome, int X, int Y, String percorsoFile){
         this.nome = nome;
         this.occupata = false;
         this.X = X;
         this.Y = Y;
+        icona.load(percorsoFile);
+        icona.translate(X - icona.getWidth()/2, Y - icona.getHeight()/2);
     }
-
-
 
     /**
      * Metodo che ritorna il nome della presa
@@ -90,6 +94,16 @@ public class Presa {
         }
 
         return ritorno;
+    }
+
+
+    public void disegna () {
+        this.icona.draw();
+        this.testo = new Text(icona.getX(), icona.getY() + 20, this.nome);
+        this.testo.draw();
+        if(this.occupata){
+            this.lampadina.disegna(X,Y);
+        }
     }
 
     @Override

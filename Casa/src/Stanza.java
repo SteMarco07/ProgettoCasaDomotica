@@ -236,13 +236,6 @@ public class Stanza {
     }
 
 
-    public String toStringCSVFile(){
-        StringBuilder ritorno = new StringBuilder(nome + ';' + prese.size() + "\n");
-        for (var i : prese) {
-            ritorno.append(i.toStringCSVFile());
-        }
-        return ritorno.toString();
-    }
 
     public int getNumPrese() {
         return prese.size();
@@ -256,6 +249,20 @@ public class Stanza {
             }
         }
         return count;
+    }
+
+    public void disegna() {
+        for (var i : prese) {
+            i.disegna();
+        }
+    }
+
+    public String toStringCSVFile(){
+        StringBuilder ritorno = new StringBuilder(nome + ';' + prese.size() + "\n");
+        for (var i : prese) {
+            ritorno.append(i.toStringCSVFile());
+        }
+        return ritorno.toString();
     }
 
     @Override

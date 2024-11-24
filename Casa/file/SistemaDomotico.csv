@@ -1,5 +1,5 @@
 SistemaDomotico
 2
-Stanza 1;1
-Presa 1;1;1;Lampadina 1;12.0;30;255;255;255;accesa
-Stanza 2;0
+Camera;1
+Presa camera;220;300
+Cucina;0

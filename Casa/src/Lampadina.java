@@ -1,4 +1,7 @@
 import graphics.Color;
+import graphics.Ellipse;
+import graphics.Rectangle;
+import graphics.Text;
 
 /**
  * Classe che rappresenta una lampadina intelligente
@@ -9,7 +12,10 @@ public class Lampadina {
     private int lum;
     private final float potenza;
     private boolean accesa;
-    Color colore;
+    private Color colore;
+    private Rectangle base;
+    private Ellipse bulbo, bordo;
+    private Text testo;
 
     /**
      * Costruttore che inizializza una lampadina (colore giallo, luminosità 0, spenta)
@@ -25,8 +31,6 @@ public class Lampadina {
     }
 
 
-
-
     /**
      * Modifica il nome della lampadina
      * @param nome Nome (String)
@@ -37,6 +41,21 @@ public class Lampadina {
         }
     }
 
+    /**
+     * Ritorna il colore della lampadina
+     * @return colore (Color)
+     */
+    public Color getColore () {
+        return this.colore;
+    }
+
+    /**
+     * Ritorna la luminosità
+     * @return luminosità (int)
+     */
+    public int getLum(){
+        return this.lum;
+    }
 
     /**
      * Ritorna come String il nome della lampadina
@@ -119,6 +138,28 @@ public class Lampadina {
             return 0.0f;
         }
 
+    }
+
+    public void disegna(int X, int Y){
+        final int dim = 10;
+        int raggio = this.getLum()/2;
+        X -= dim/2;
+        Y -= dim/2;
+        this.base = new Rectangle(X,Y,dim,dim);
+        this.bulbo = new Ellipse(X + (dim-raggio)/2, Y - raggio, raggio,raggio);
+        this.bordo = new Ellipse(X - 2 + (dim-raggio)/2, Y - 2 - raggio, raggio+4,raggio+4);
+        this.testo = new Text(X + (dim-raggio)/2, Y - raggio - 20, this.nome);
+        if(accesa){
+            bulbo.setColor(getColore());
+
+        }
+        base.draw();
+        bordo.draw();
+        bulbo.draw();
+        bordo.fill();
+        base.fill();
+        bulbo.fill();
+        testo.draw();
     }
 
     /**

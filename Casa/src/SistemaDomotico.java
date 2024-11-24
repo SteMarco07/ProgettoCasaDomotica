@@ -38,7 +38,7 @@ public class SistemaDomotico {
                         //legge la presa
                         String presa = br.readLine();
                         String[] pr = presa.split(";");
-                        Presa p = new Presa(pr[0],Integer.parseInt(pr[1]),Integer.parseInt(pr[2]));
+                        Presa p = new Presa(pr[0],Integer.parseInt(pr[1]),Integer.parseInt(pr[2]), "assets\\presa corrente.jpg");
                         this.aggiungiPresa(v[0],p);
 
                         //controlla se la lampadina è occupata
@@ -302,7 +302,11 @@ public class SistemaDomotico {
         return  s.getNumPrese();
     }
 
-
+    public void disegna() {
+        for (var i : stanze) {
+            i.disegna();
+        }
+    }
 
     public String toStringCSVFile(){
         StringBuilder ritorno = new StringBuilder("SistemaDomotico\n");
