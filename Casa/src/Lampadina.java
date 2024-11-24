@@ -8,7 +8,7 @@ public class Lampadina {
     private String nome;
     private int lum;
     private final float potenza;
-    private boolean acceso;
+    private boolean accesa;
     Color colore;
 
     /**
@@ -16,29 +16,16 @@ public class Lampadina {
      * @param nome nome lampadina
      * @param potenza potenza lampadina
      */
-    public Lampadina(String nome, int potenza) {
+    public Lampadina(String nome, float potenza) {
         this.nome = nome;
         this.potenza = potenza;
-        this.acceso = false;
+        this.accesa = false;
         this.lum = 0;
         colore = new Color(255,255,255);
     }
 
-    /**
-     * Ritorna una stringa con tutte le caratteristiche della lampadina.
-      * @return Nome + Colore + Luminosità + Stato accensione (String)
-     */
-    @Override
-    public String toString() {
-        String s = this.nome + ";" + this.potenza + ";" + this.lum + ";" + this.colore + ";";
 
-        if (this.acceso) {
-            s += "accesa";
-        } else {
-            s += "spenta";
-        }
-        return s + "\n";
-    }
+
 
     /**
      * Modifica il nome della lampadina
@@ -86,18 +73,30 @@ public class Lampadina {
         this.lum = lum;
     }
 
+    public void aumentaLum () {
+        if (this.lum <= 90) {
+           lum += 10;
+        }
+    }
+
+    public void diminuisciLum () {
+        if (this.lum >= 10) {
+            lum -= 10;
+        }
+    }
+
     /**
      * Accende la lampadina
      */
     public void accendi(){
-        this.acceso = true;
+        this.accesa = true;
     }
 
     /**
      * Spegne la lampadina
      */
     public void spegni(){
-        this.acceso = false;
+        this.accesa = false;
     }
 
     /**
@@ -105,7 +104,7 @@ public class Lampadina {
      * @return stato di accensione (Boolean)
      */
     public boolean isAcceso(){
-        return this.acceso;
+        return this.accesa;
     }
 
     /**
@@ -113,7 +112,37 @@ public class Lampadina {
      * @return Potenza Istantanea
      */
     public float getPotenzaIstantanea(){
-        return (this.potenza/(float)this.lum)*100.0f;
+        if (this.accesa && this.lum != 0) {
+            return (float)this.lum/100.0f*this.potenza;
+
+        } else {
+            return 0.0f;
+        }
+
+    }
+
+    /**
+     * Ritorna una stringa con tutte le caratteristiche della lampadina.
+     * @return Nome + Colore + Luminosità + Stato accensione (String)
+     */
+    public String toStringCSVFile() {
+        String s = this.nome + ";" + this.potenza + ";" + this.lum + ";" + this.colore + ";";
+
+        if (this.accesa) {
+            s += "accesa";
+        } else {
+            s += "spenta";
+        }
+        return s + "\n";
+    }
+    @Override
+    public String toString () {
+        return  "\n\tLAMPADINA " + this.nome +
+                "\n\t\tPotenza: " + this.potenza +
+                "\n\t\tLuminosità: " + this.lum +
+                "\n\t\tColore: " + this.colore +
+                "\n\t\tAccesa: " + this.accesa;
+
     }
 }
 

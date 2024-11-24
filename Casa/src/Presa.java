@@ -23,6 +23,8 @@ public class Presa {
         this.Y = Y;
     }
 
+
+
     /**
      * Metodo che ritorna il nome della presa
      * @return nome presa
@@ -70,8 +72,6 @@ public class Presa {
             this.lampadina = lampadina;
             this.occupata = true;
         }
-
-
     }
 
     public void rimuoviLampadina(){
@@ -79,14 +79,30 @@ public class Presa {
         this.lampadina = null;
     }
 
-    @Override
-    public String toString(){
-        String ritorno = nome + ';'+ X + ';' + Y + ';';
-        if(getLampadina() == null){
-            ritorno+="libera\n";
+
+    public String toStringCSVFile(){
+        String ritorno = nome + ';'+ X + ';' + Y;
+
+        if(this.occupata){
+            ritorno+=";" + getLampadina().toStringCSVFile();
         } else {
-            ritorno+="occupata;" + getLampadina().toString();
+            ritorno+="\n";
         }
+
         return ritorno;
+    }
+
+    @Override
+    public String toString() {
+        String s =  "\n____________________________________\s" +
+                "\nPRESA " + this.nome +
+                "\n\tPosizione x: " + this.X +
+                "\n\tPosizione y: " + this.Y;
+        if (occupata) {
+            s += getLampadina().toString();
+        } else {
+            s += "\n\tLa presa è libera";
+        }
+        return s;
     }
 }

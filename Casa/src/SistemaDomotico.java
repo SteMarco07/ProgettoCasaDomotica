@@ -1,18 +1,13 @@
-import Eccezioni.FileNonValido;
-import Eccezioni.LampadinaNonTrovata;
-import Eccezioni.PresaNonTrovata;
-import Eccezioni.StanzaNonTrovata;
+import Eccezioni.*;
 import graphics.Color;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 /**
  * Classe che rappresenta un sistema domotico, con un numero indefinito di lampadine.
  */
+
 public class SistemaDomotico {
 
     private ArrayList<Stanza> stanze;
@@ -20,6 +15,7 @@ public class SistemaDomotico {
 
     //TODO: Costruttore
     public SistemaDomotico(String nomeFile){
+        this.stanze = new ArrayList<>();
         try{
             FileReader fr = new FileReader(nomeFile);
             BufferedReader br = new BufferedReader(fr);
@@ -28,7 +24,8 @@ public class SistemaDomotico {
                 throw new IOException();
             } else {
                 //numero di stanze
-                int nStanze = br.read();
+                riga = br.readLine();
+                int nStanze = Integer.parseInt(riga);
                 for(int i = 0; i < nStanze; ++i){
                     riga = br.readLine();
                     String[] v = riga.split(";");
@@ -37,34 +34,48 @@ public class SistemaDomotico {
                     //numero di prese
                     int nPrese = Integer.parseInt(v[1]);
                     for(int j = 0; j < nPrese; ++j){
+
                         //legge la presa
                         String presa = br.readLine();
                         String[] pr = presa.split(";");
                         Presa p = new Presa(pr[0],Integer.parseInt(pr[1]),Integer.parseInt(pr[2]));
                         this.aggiungiPresa(v[0],p);
-                        if(pr[3].equals("occupata")){
-                            Lampadina l = new Lampadina(pr[4],Integer.parseInt(pr[5]));
-                            l.setLum(Integer.parseInt(pr[6]));
+
+                        //controlla se la lampadina è occupata
+                        if(pr.length > 3){
+
+                            Lampadina l = new Lampadina(pr[3],Float.parseFloat(pr[4]));
+                            l.setLum(Integer.parseInt(pr[5]));
                             //Colori
-                            int R = Integer.parseInt(pr[7]);
-                            int G = Integer.parseInt(pr[8]);
-                            int B = Integer.parseInt(pr[9]);
+                            int R = Integer.parseInt(pr[6]);
+                            int G = Integer.parseInt(pr[7]);
+                            int B = Integer.parseInt(pr[8]);
                             l.setColore(new Color(R,G,B));
-                            if(pr[10].equals("accesa")){
+                            if(pr[9].equals("accesa")){
                                 l.accendi();
                             }
+                            p.setLampadina(l);
                         }
                     }
                 }
+
             }
+            fr.close();
+            br.close();
         } catch (IOException e){
             this.stanze = new ArrayList<>();
         }
     }
 
-    //TODO: Salva in un file
-    public void salvaInFile(String nomeFile){
+    public SistemaDomotico() {
+        stanze = new ArrayList<>();
+    }
 
+    //TODO: Salva in un file
+    public void salvaInFile(String nomeFile) throws IOException{
+            BufferedWriter bw = new BufferedWriter(new FileWriter(nomeFile));
+            bw.write(this.toStringCSVFile());
+            bw.close();
     }
 
     //TODO: Metodi di ricerca
@@ -83,26 +94,20 @@ public class SistemaDomotico {
     }
 
     /**
-     * Cerca una lampadina data la sua presa
-     * @param presa Presa
-     * @return Ritorna la lampadina se è stata trovata, altrimenti ritorna null
-     */
-    public Lampadina getLampadinaPresa(Presa presa){
-        return presa.getLampadina();
-    }
-    /**
      * Cerca una lampadina all'interno del sistema
      * @param nomeStanza Nome della stanza (String)
      * @param nomeLampadina Nome della lampadina (String)
      * @return Ritorna la lampadina; se è stata trovata, altrimenti ritorna null
      */
 
-    public Lampadina getLampadinaNome(String nomeStanza, String nomeLampadina){
+    public Lampadina getLampadina(String nomeStanza, String nomeLampadina) throws StanzaNonTrovata, LampadinaNonTrovata{
         Stanza stanza = cercaStanza(nomeStanza);
-        if(stanza != null){
-            return stanza.getLampadina(nomeLampadina);
-        }
-        throw new LampadinaNonTrovata();
+        return stanza.getLampadina(nomeLampadina);
+    }
+
+    public Presa getPresa (String nomeStanza, String nomePresa) throws StanzaNonTrovata,PresaNonTrovata{
+        Stanza stanza = cercaStanza(nomeStanza);
+        return stanza.getPresa(nomePresa);
     }
 
     //TODO: Metodi di aggiunta
@@ -113,69 +118,81 @@ public class SistemaDomotico {
      * @param nomePresa Nome della presa a cui si vuole collegare la lampadina
      * @param lampadina Lampadina (Lampadina)
      */
-    public void aggiungiLampadina(String nomeStanza, String nomePresa, Lampadina lampadina){
+    public void aggiungiLampadina(String nomeStanza, String nomePresa, Lampadina lampadina) throws StanzaNonTrovata, PresaNonTrovata, PresaOccupata, LampadinaEsistente{
 
+        Stanza stanza = cercaStanza(nomeStanza);
+        stanza.aggiungiLampadina(nomePresa,lampadina);
+    }
+
+    public void aggiungiPresa(String nomeStanza, Presa presa) throws StanzaNonTrovata, PresaEsistente{
+        Stanza s;
+        s = cercaStanza(nomeStanza);
+        s.aggiungiPresa(presa);
+    }
+
+
+
+    public void aggiungiStanza(Stanza s) throws StanzaEsistente{
         try {
-            Stanza stanza = cercaStanza(nomeStanza);
-            stanza.aggiungiLampadina(nomePresa,lampadina);
-        } catch (StanzaNonTrovata e){
-            throw e;
+            cercaStanza(s.getNome());
+        } catch (StanzaNonTrovata e) {
+            stanze.add(s);
         }
+
     }
 
-    public void aggiungiPresa(String nomeStanza, Presa presa){
-        Stanza s = cercaStanza(nomeStanza);
-        if(s == null){
-            throw new StanzaNonTrovata();
-        } else {
-            s.aggiungiPresa(presa);
-        }
+
+    //TODO: metodi di rimozione
+    public void rimuoviPresa(String nomeStanza, String nomePresa) throws  StanzaNonTrovata, PresaNonTrovata{
+        Stanza s;
+        s = this.cercaStanza(nomeStanza);
+        s.rimuoviPresa(nomePresa);
     }
 
-    public void aggiungiStanza(Stanza s){
-        stanze.add(s);
+    public void rimuoviLampadina(String nomeStanza, String nomeLampadina) throws  StanzaNonTrovata, LampadinaNonTrovata{
+        Stanza s;
+        s = this.cercaStanza(nomeStanza);
+        s.rimuoviLampadina(nomeLampadina);
     }
-
 
     /**
      * Rimuove una lampadina dato il nome della stanza e quello della presa.
      * @param nomePresa Nome della presa (String)
      * @param nomeStanza Nome della stanza (String)
      */
-    public void RimuoviLampadinaNomePresa(String nomeStanza, String nomePresa){
+    public void RimuoviLampadinaNomePresa(String nomeStanza, String nomePresa) throws StanzaNonTrovata, PresaNonTrovata, LampadinaNonTrovata{
         Stanza stanza = cercaStanza(nomeStanza);
-        if(stanza != null){
-            Presa presa = stanza.getPresa(nomePresa);
-            if(presa != null){
-                presa.setLampadina(null);
-            } else {
-                throw new PresaNonTrovata();
+        Presa presa = stanza.getPresa(nomePresa);
+        presa.setLampadina(null);
+    }
+    //TODO: Metodi vari
+    public Stanza getStanza(String nomeStanza) throws StanzaNonTrovata{
+        for(var i :stanze){
+            if (i.getNome().equals(nomeStanza)){
+                return i;
             }
-        } else {
-            throw new StanzaNonTrovata();
         }
+        throw new StanzaNonTrovata();
     }
 
-    /**
-     * Accende tutte le lampadine di una stanza dato il suo nome
-     * @param nomeStanza Nome della stanza (String)
-     */
-    public void accendiTutteStanza(String nomeStanza){
-       Stanza stanza = cercaStanza(nomeStanza);
-       if(stanza != null){
-           stanza.accendiTutte();
-       }
-    }
 
     /**
      * Accende tutte le lampadine di una stanza, dato il suo nome
      * @param nomeStanza Nome stanza
+     * @throws StanzaNonTrovata
      */
-    public void accendiStanza(String nomeStanza){
+    public void accendiStanza(String nomeStanza) throws StanzaNonTrovata{
         Stanza stanza = cercaStanza(nomeStanza);
-        if(stanza != null){
-            stanza.accendiTutte();
-        }
+        stanza.accendiTutte();
+    }
+    /**
+     * Spegne tutte le lampadine di una stanza, dato il suo nome
+     * @param nomeStanza Nome stanza
+     * @throws StanzaNonTrovata
+     */
+    public void spegniStanza(String nomeStanza) throws StanzaNonTrovata{
+        Stanza stanza = cercaStanza(nomeStanza);
+        stanza.spegniTutte();
     }
 
     /**
@@ -184,6 +201,14 @@ public class SistemaDomotico {
     public void spegniTutte(){
         for (var i : stanze) {
                 i.spegniTutte();
+        }
+    }
+    /**
+     * Spegne tutte le lampadine del sistema
+     */
+    public void accendiTutte(){
+        for (var i : stanze) {
+            i.accendiTutte();
         }
     }
 
@@ -199,15 +224,17 @@ public class SistemaDomotico {
         return ritorno;
     }
 
+    //TODO: Metodi vari per la lampadina
+
     /**
      * Modifica il colore di una lampadina dato il suo nome e quello della stanza in cui è.
      * @param nomeLampadina Nome della lampadina (String)
      * @param nomeStanza Nome della stanza (String)
      * @param colore Colore (String)
      */
-    public void modificaColoreLampadina(String nomeStanza,String nomeLampadina, Color colore){
-        Lampadina lampadina = getLampadinaNome(nomeStanza, nomeLampadina);
-        lampadina.setColore(colore);
+    public void modificaColoreLampadina(String nomeStanza,String nomeLampadina, Color colore) throws StanzaNonTrovata, LampadinaNonTrovata{
+        Stanza s = cercaStanza(nomeStanza);
+        s.setColore(nomeLampadina, colore);
 
     }
 
@@ -217,46 +244,80 @@ public class SistemaDomotico {
      * @param nomeStanza Nome della stanza (String)
      * @param lum Luminosità (int)
      */
-    public void modificaLum(String nomeStanza, String nomeLampadina, int lum){
-        Lampadina l = this.getLampadinaNome(nomeStanza, nomeLampadina);
-        l.setLum(lum);
+    public void modificaLumLampadina(String nomeStanza, String nomeLampadina, int lum) throws StanzaNonTrovata, LampadinaNonTrovata{
+        Stanza s = cercaStanza(nomeStanza);
+        s.setLumLampadina(nomeLampadina, lum);
     }
+
+    public void aumentaLumLampadina(String nomeStanza, String nomeLampadina) throws StanzaNonTrovata, LampadinaNonTrovata{
+        Stanza s = cercaStanza(nomeStanza);
+        s.aumentaLumLampadina(nomeLampadina);
+    }
+    public void diminuisciLumLampadina(String nomeStanza, String nomeLampadina) throws StanzaNonTrovata, LampadinaNonTrovata{
+        Stanza s = cercaStanza(nomeStanza);
+        s.diminuisciLumLampadina(nomeLampadina);
+    }
+
 
     /**
      * Spegne una lampadina di cui si passa il suo nome e quello della stanza.
      * @param nomeStanza Nome della stanza (String)
      * @param nomeLampadina Nome della lampadina (String)
      */
-    public void accendiLampadina(String nomeStanza, String nomeLampadina){
-        Lampadina l = getLampadinaNome(nomeStanza, nomeLampadina);
-        l.accendi();
+    public void accendiLampadina(String nomeStanza, String nomeLampadina) throws StanzaNonTrovata, LampadinaNonTrovata{
+        Stanza s = getStanza(nomeStanza);
+        s.accendiLampadina(nomeLampadina);
     }
     /**
      * Spegne una lampadina di cui si passa il suo nome e quello della stanza.
      * @param nomeStanza Nome della stanza (String)
      * @param nomeLampadina Nome della lampadina (String)
      */
-    public void spegniLampadina(String nomeStanza, String nomeLampadina){
-        Lampadina l = getLampadinaNome(nomeStanza, nomeLampadina);
-        l.spegni();
+    public void spegniLampadina(String nomeStanza, String nomeLampadina)throws StanzaNonTrovata, LampadinaNonTrovata{
+        Stanza s = getStanza(nomeStanza);
+        s.spegniLampadina(nomeLampadina);
     }
 
-    /**
-     * Stampa tutto il sistema e le caratteristiche di ciascuna lampadina.
-     */
-    public void stampaSistema(){
-        for (var i : stanze){
-                i.stampaSistema();
-        }
+    public boolean isLampadinaAccesa(String nomeStanza, String nomeLampadina)throws StanzaNonTrovata, LampadinaNonTrovata {
+        Stanza s = getStanza(nomeStanza);
+        return s.isLampadinaAccesa(nomeLampadina);
     }
 
-    @Override
-    public String toString(){
-        String ritorno = "SistemaDomotico\n";
-        ritorno += stanze.size() + "\n";
+    public int getNumLampadineStanza(String nomeStanza) throws StanzaNonTrovata {
+        Stanza s = this.cercaStanza(nomeStanza);
+        return  s.getNumLampadine();
+    }
+
+
+
+    //TODO: metodi vari per la presa
+    public boolean isPresaOccupata (String nomeStanza, String nomePresa) throws StanzaNonTrovata, PresaNonTrovata {
+        Stanza s = this.cercaStanza(nomeStanza);
+        Presa p = s.getPresa(nomePresa);
+        return p.isOccupata();
+    }
+
+    public int getNumPreseStanza(String nomeStanza) throws StanzaNonTrovata {
+        Stanza s = this.cercaStanza(nomeStanza);
+        return  s.getNumPrese();
+    }
+
+
+
+    public String toStringCSVFile(){
+        StringBuilder ritorno = new StringBuilder("SistemaDomotico\n");
+        ritorno.append(stanze.size()).append("\n");
         for(var i : stanze){
-            ritorno += i.toString();
+            ritorno.append(i.toStringCSVFile());
         }
-        return ritorno;
+        return ritorno.toString();
+    }
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        for (var i : stanze) {
+            s.append(i.toString());
+        }
+        return s.toString();
     }
 }

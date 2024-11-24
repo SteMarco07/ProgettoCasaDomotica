@@ -23,7 +23,7 @@ public class Stanza {
     /**
      * Cerca una presa
      * @param nomePresa Nome della presa (String)
-     * @return Ritorna la presa se è stata trovata, altrimenti ritorna null
+     * @return Ritorna la presa se è stata trovata
      * @throws PresaNonTrovata
      */
     public Presa getPresa (String nomePresa) throws PresaNonTrovata{
@@ -38,7 +38,7 @@ public class Stanza {
     /**
      * Dato il nome di una lampadina
      * @param nomeLampadina Nome della presa (String)
-     * @return Ritorna la presa se è stata trovata, altrimenti ritorna null
+     * @return Ritorna la presa se è stata trovata
      * @throws LampadinaNonTrovata
      */
     public Lampadina getLampadina(String nomeLampadina) throws LampadinaNonTrovata {
@@ -54,7 +54,7 @@ public class Stanza {
     /**
      * Cerca una presa in base al nome della lampadina
      * @param nomeLampadina Nome della lampadina (String)
-     * @return La presa se è stata trovata, altrimenti null
+     * @return La presa se è stata trovata
      * @throws LampadinaNonTrovata Se la lampadina non è presente nella stanza
      */
     public Presa getPresaNomeLampadina(String nomeLampadina) throws  LampadinaNonTrovata{
@@ -93,24 +93,14 @@ public class Stanza {
      * @throws PresaNonTrovata
      */
     public void aggiungiLampadina(String nomePresa, Lampadina lampadina) throws LampadinaEsistente, PresaNonTrovata, PresaOccupata {
-        try {
-
-            Presa presa = getPresa(nomePresa);
-
-            try{
-                getLampadina(lampadina.getNome());
-                throw new LampadinaEsistente();
-            } catch (LampadinaNonTrovata e){
-                try{
-                    presa.setLampadina(lampadina);
-                } catch (PresaOccupata e1){
-                    throw e1;
-                }
-            }
-
-        } catch (PresaNonTrovata e){
-         throw e;
+        Presa presa = getPresa(nomePresa);
+        try{
+            getLampadina(lampadina.getNome());
+            throw new LampadinaEsistente();
+        } catch (LampadinaNonTrovata e){
+            presa.setLampadina(lampadina);
         }
+
     }
 
 
@@ -121,13 +111,9 @@ public class Stanza {
      * @param nomePresa Nome della presa (String)
      * @return true se la presa è stata rimossa, false se non è stata rimossa
      */
-    public void rimuoviPresa(String nomePresa) {
+    public void rimuoviPresa(String nomePresa) throws PresaNonTrovata{
         Presa p = getPresa(nomePresa);
-        if (p != null) {
-            prese.remove(p);
-        } else {
-            throw new PresaNonTrovata();
-        }
+        prese.remove(p);
     }
 
     /**
@@ -137,11 +123,7 @@ public class Stanza {
      */
     public void rimuoviLampadina(String nomeLampadina) throws LampadinaNonTrovata{
         Presa p = getPresaNomeLampadina(nomeLampadina);
-        if(p != null){
-            p.setLampadina(null);
-        } else {
-            throw new LampadinaNonTrovata();
-        }
+        p.rimuoviLampadina();
     }
 
     //TODO: metodi vari
@@ -150,7 +132,7 @@ public class Stanza {
      */
     public void accendiTutte(){
         for (var i : prese) {
-            if (i != null) {
+            if (i.getLampadina() != null) {
                 i.getLampadina().accendi();
             }
         }
@@ -160,7 +142,9 @@ public class Stanza {
      */
     public void spegniTutte(){
         for (var i : prese) {
-            i.getLampadina().spegni();
+            if (i.getLampadina() != null ){
+                i.getLampadina().spegni();
+            }
         }
     }
 
@@ -171,7 +155,7 @@ public class Stanza {
     public float getPotenzaSistema(){
         float ritorno = 0;
         for(var i : prese){
-            if(i.getLampadina().isAcceso()){
+            if(i.isOccupata() && i.getLampadina().isAcceso()){
                 ritorno+=i.getLampadina().getPotenzaIstantanea();
             }
         }
@@ -186,12 +170,8 @@ public class Stanza {
      */
     public void setColore(String nomeLampadina, Color colore) throws LampadinaNonTrovata{
         Lampadina l;
-        try {
-            l = getLampadina(nomeLampadina);
-            l.setColore(colore);
-        } catch (LampadinaNonTrovata e) {
-            throw e;
-        }
+        l = getLampadina(nomeLampadina);
+        l.setColore(colore);
     }
 
     /**
@@ -201,12 +181,8 @@ public class Stanza {
      * @throws LampadinaNonTrovata
      */
     public void setLum(String nomeLampadina, int lum) throws LampadinaNonTrovata{
-        try {
-            Lampadina l = getLampadina(nomeLampadina);
-            l.setLum(lum);
-        } catch (LampadinaNonTrovata e){
-            throw e;
-        }
+        Lampadina l = getLampadina(nomeLampadina);
+        l.setLum(lum);
     }
 
     /**
@@ -215,12 +191,8 @@ public class Stanza {
      */
     public void accendiLampadina(String nomeLampadina) throws LampadinaNonTrovata{
         Lampadina l;
-        try {
-            l = getLampadina(nomeLampadina);
-            l.accendi();
-        } catch (LampadinaNonTrovata e){
-            throw e;
-        }
+        l = getLampadina(nomeLampadina);
+        l.accendi();
     }
     /**
      * Spegne una lampadina di cui si passa il nome.
@@ -228,22 +200,32 @@ public class Stanza {
      */
     public void spegniLampadina(String nomeLampadina) throws LampadinaNonTrovata{
         Lampadina l;
-        try {
-            l = getLampadina(nomeLampadina);
-            l.spegni();
-        } catch (LampadinaNonTrovata e){
-            throw e;
-        }
+        l = getLampadina(nomeLampadina);
+        l.spegni();
     }
 
-    /**
-     * Stampa tutto il sistema e le caratteristiche di ciascuna lampadina.
-     */
-    public void stampaSistema(){
-        for (var i : prese){
-            System.out.println(i.getLampadina());
-        }
+    public  boolean isLampadinaAccesa (String nomeLampadina) throws LampadinaNonTrovata{
+        Lampadina l = getLampadina(nomeLampadina);
+        return l.isAcceso();
     }
+
+    public void setLumLampadina (String nomeLampadina, int valore) throws LampadinaNonTrovata{
+        Lampadina l = getLampadina(nomeLampadina);
+        l.setLum(valore);
+    }
+
+    public void aumentaLumLampadina (String nomeLampadina) throws LampadinaNonTrovata{
+        Lampadina l = getLampadina(nomeLampadina);
+        l.aumentaLum();
+    }
+
+    public void diminuisciLumLampadina (String nomeLampadina) throws LampadinaNonTrovata{
+        Lampadina l = getLampadina(nomeLampadina);
+        l.diminuisciLum();
+    }
+
+
+
 
     /**
      * Restituisce il nome della stanza
@@ -253,12 +235,36 @@ public class Stanza {
         return nome;
     }
 
-    @Override
-    public String toString(){
-        String ritorno = nome + ';' + prese.size() + "\n";
+
+    public String toStringCSVFile(){
+        StringBuilder ritorno = new StringBuilder(nome + ';' + prese.size() + "\n");
         for (var i : prese) {
-            ritorno += i.toString();
+            ritorno.append(i.toStringCSVFile());
         }
-        return ritorno;
+        return ritorno.toString();
+    }
+
+    public int getNumPrese() {
+        return prese.size();
+    }
+
+    public int getNumLampadine () {
+        int count = 0;
+        for (var i : prese) {
+            if (i.isOccupata()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    @Override
+    public String toString () {
+        String s =  "\n____________________________________ " +
+                "\nStanza " + this.nome;
+        for(var i : prese) {
+            s += i.toString();
+        }
+        return s;
     }
 }
