@@ -1,7 +1,9 @@
 package graphics;
 
+import java.io.Serializable;
+
 //HIDE
-public class Color
+public class Color implements Serializable
 {
     private int red;
     private int green;

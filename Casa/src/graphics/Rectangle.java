@@ -1,8 +1,9 @@
 package graphics;//HIDE
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 
-public class Rectangle implements Shape
+public class Rectangle implements Shape, Serializable
 {
     private Color color = Color.BLACK;
     private boolean filled = false;

@@ -3,6 +3,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.Arrays;
 
@@ -15,7 +16,7 @@ import javax.swing.filechooser.FileFilter;
 /**
  * A picture from an image file.
  */
-public class Picture implements Shape
+public class Picture implements Shape, Serializable
 {
     private BufferedImage image;
     private JLabel label = new JLabel();    

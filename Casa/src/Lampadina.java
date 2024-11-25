@@ -3,13 +3,15 @@ import graphics.Ellipse;
 import graphics.Rectangle;
 import graphics.Text;
 
+import java.io.Serializable;
+
 /**
  * Classe che rappresenta una lampadina intelligente che ha una potenza, nome, colore ed è accesa o spenta
  * @author Stellino Marco
  * @author Robolini Paolo
  * @version 1.0
  */
-public class Lampadina {
+public class Lampadina implements Serializable {
     private String nome;
     private int lum;
     private final float potenza;

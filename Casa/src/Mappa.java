@@ -3,13 +3,15 @@ import graphics.Line;
 import graphics.Picture;
 import graphics.Text;
 
+import java.io.Serializable;
+
 /**
  * Classe Mappa che disegna la piantina della casa
  * @author Stellino Marco
  * @author Robolini Paolo
  * @version 1.0
  */
-public class Mappa {
+public class Mappa implements Serializable {
     Picture piantina;
 
     /**

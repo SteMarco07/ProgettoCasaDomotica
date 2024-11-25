@@ -1,11 +1,11 @@
 package graphics;//HIDE
 import java.awt.Graphics2D;
+import java.io.Serializable;
 
 /**
  * A shape that can be drawn on a canvas.
  */
-public interface Shape
-{
+public interface Shape extends Serializable {
     /**
      * Gets the leftmost x-position of the shape.
      * @return the leftmost x-position

@@ -1,10 +1,11 @@
 package graphics;//HIDE
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.io.Serializable;
 
 import javax.swing.JLabel;
 
-public class Text implements Shape
+public class Text implements Shape, Serializable
 {
     private Color color = Color.BLACK;
     private JLabel label = new JLabel();

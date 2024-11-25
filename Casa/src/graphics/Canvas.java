@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.image.RescaleOp;
 import java.io.IOException;
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -14,7 +15,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-public class Canvas
+public class Canvas implements Serializable
 {
     private static Canvas canvas = new Canvas();
 

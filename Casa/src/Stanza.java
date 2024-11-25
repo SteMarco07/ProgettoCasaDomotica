@@ -1,6 +1,7 @@
 import Eccezioni.*;
 import graphics.Color;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -9,7 +10,7 @@ import java.util.ArrayList;
  * @author Robolini Paolo
  * @version 1.0
  */
-public class Stanza {
+public class Stanza implements Serializable {
     private final String nome;
     private ArrayList<Presa> prese;
 

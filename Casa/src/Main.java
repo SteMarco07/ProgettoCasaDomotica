@@ -1,7 +1,9 @@
 import Eccezioni.*;
 import graphics.*;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Scanner;
 
 /**
@@ -29,7 +31,7 @@ public class Main {
                     4: Accendi tutte le lampadine del sistema domotico \s
                     5: Spegni tutte le lampadine del sistema domotico \s
                     6: Stampa il sistema domotico \s
-                    7: Salva il sistema domotico \s
+                    7: Esegui un backup del sistema domotico in un file CSV \s
                     """;
             case 1 -> """
                     ____________________________________ \s
@@ -366,15 +368,24 @@ public class Main {
             return -1;
         }
     }
+    public static SistemaDomotico deserializza(String nomeFile) throws IOException, ClassNotFoundException {
+        try (ObjectInputStream is = new ObjectInputStream(new FileInputStream(nomeFile))) {
+            return (SistemaDomotico)is.readObject();
+        }
+    }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         Canvas canvas = Canvas.getInstance();
 
-        SistemaDomotico sistemaDomotico = new SistemaDomotico("file\\SistemaDomotico.csv");
+        SistemaDomotico sistemaDomotico = null;
         Scanner in = new Scanner(System.in);
         Mappa mappa = new Mappa("assets\\casa.jpg");
         mappa.disegna();
+
+        sistemaDomotico = new SistemaDomotico("file\\SistemaDomotico.bin","file\\SistemaDomotico.csv");
+
+
 
         int scelta = 1;
         while (scelta != 0) {
@@ -422,7 +433,7 @@ public class Main {
                     break;
                 case 7:
                     try {
-                        sistemaDomotico.salvaInFile("file\\SistemaDomotico.csv");
+                        sistemaDomotico.salvaInFileCSV("file\\SistemaDomotico.csv");
                     } catch (IOException e) {
                         System.out.println("Non è stato possibile salvare il sistema domotico");
                     }
@@ -436,7 +447,8 @@ public class Main {
         }
         canvas.getInstance().Stop();
         try {
-            sistemaDomotico.salvaInFile("file\\SistemaDomotico.csv");
+            sistemaDomotico.salvaInFileCSV("file\\SistemaDomotico.csv");
+            sistemaDomotico.serializza("file\\SistemaDomotico.bin");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

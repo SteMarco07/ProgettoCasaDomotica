@@ -1,13 +1,15 @@
 import Eccezioni.PresaOccupata;
 import graphics.*;
 
+import java.io.Serializable;
+
 /**
  * Classe che rappresenta una presa a cui è collegata una e una sola lampadina.
  * @author Stellino Marco
  * @author Robolini Paolo
  * @version 1.0
  */
-public class Presa {
+public class Presa implements Serializable {
     private final String nome;
     private int X;
     private int Y;

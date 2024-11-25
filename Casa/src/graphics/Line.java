@@ -1,8 +1,9 @@
 package graphics;//HIDE
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
+import java.io.Serializable;
 
-public class Line implements Shape
+public class Line implements Shape, Serializable
 {
     private Color color = Color.BLACK;
     private double x1;

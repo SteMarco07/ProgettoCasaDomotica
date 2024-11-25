@@ -11,16 +11,61 @@ import java.util.ArrayList;
  * @version 1.0
  */
 
-public class SistemaDomotico {
+public class SistemaDomotico implements Serializable{
 
     private ArrayList<Stanza> stanze;
 
+    /**
+     * Costruttore che carica prima da un file tramite la deserializzazione, se fallisce prova il caricamento tramite file CSV, se fallisce anche quest'ultima lo cra vuoto
+     * @param nomeFileSerializzato Nome del file da cui fare la deserializzazione
+     * @param nomeFileCSV Nome del file CSV
+     */
+    public SistemaDomotico(String nomeFileSerializzato, String nomeFileCSV) {
+        this.stanze = new ArrayList<>();
+        try {
+            SistemaDomotico deserializzato = deserializza(nomeFileSerializzato);
+            this.stanze = deserializzato.stanze;
+        } catch (IOException | ClassNotFoundException e) {
+            this.caricaDaFileCSV(nomeFileCSV);
+        }
+    }
 
     /**
-     * Costruttore che crea un sistema domotico a partire dal file di testo
-     * @param nomeFile Percorso del file CSV
+     * Costruttore vuoto
      */
-    public SistemaDomotico(String nomeFile){
+    public SistemaDomotico() {
+        this.stanze = new ArrayList<>();
+    }
+
+    /**
+     * Deserializza l'oggetto sistemaDomotico
+     * @param nomeFile Nome del file da cui l'oggetto dev'essere deserializzato
+     * @return sistemaDomotico
+     * @throws IOException In caso che non riesca ad aprire il file, lancia un'eccezione
+     * @throws ClassNotFoundException In caso in cui non riesca ad assegnare correttamente la classe, lancia un'eccezione
+     */
+    public SistemaDomotico deserializza(String nomeFile) throws IOException, ClassNotFoundException {
+        try (ObjectInputStream is = new ObjectInputStream(new FileInputStream(nomeFile))) {
+            return (SistemaDomotico)is.readObject();
+        }
+    }
+
+    /**
+     * Serializza l'oggetto sistemaDomotico
+     * @param nomeFile Nome del file in cui l'oggetto dev'essere serializzato
+     * @throws IOException In caso in cui non riesca a scrivere su nel file, lancia un'eccezione
+     */
+    public void serializza(String nomeFile) throws IOException {
+        ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(nomeFile));
+        os.writeObject(this);
+    }
+
+    /**
+     * Carica le caratteristiche della classe da un file CSV
+     * @param nomeFile Percorso del file dove viene salvato (lo stesso del salvataggio)
+     * @throws IOException In caso in cui non riesca a trovare o aprire il file CSV, lancia un'eccezione
+     */
+    public void caricaDaFileCSV(String nomeFile) {
         this.stanze = new ArrayList<>();
         try{
             FileReader fr = new FileReader(nomeFile);
@@ -76,13 +121,12 @@ public class SistemaDomotico {
             this.stanze = new ArrayList<>();
         }
     }
-
     /**
-     * Ritorna una stringa con tutte le caratteristiche del sistema, che poi verrà stampata nel file CSV.
+     * Salca in un file CSV le caratteristiche del sistema
      * @param nomeFile Percorso del file dove viene salvato (lo stesso del caricamento)
-     * @throws IOException In caso il file non esiste o non è valido, lancia un'eccezione
+     * @throws IOException In caso il file non sia valido, lancia un'eccezione
      */
-    public void salvaInFile(String nomeFile) throws IOException{
+    public void salvaInFileCSV(String nomeFile) throws IOException{
             BufferedWriter bw = new BufferedWriter(new FileWriter(nomeFile));
             bw.write(this.toStringCSVFile());
             bw.close();
