@@ -5,7 +5,10 @@ import java.io.*;
 import java.util.ArrayList;
 
 /**
- * Classe che rappresenta un sistema domotico, con un numero indefinito di lampadine.
+ * Classe che rappresenta un sistema domotico, con un numero indefinito di stanze.
+ * @author Stellino Marco
+ * @author Robolini Paolo
+ * @version 1.0
  */
 
 public class SistemaDomotico {
@@ -13,35 +16,39 @@ public class SistemaDomotico {
     private ArrayList<Stanza> stanze;
 
 
-    //TODO: Costruttore
+    /**
+     * Costruttore che crea un sistema domotico a partire dal file di testo
+     * @param nomeFile Percorso del file CSV
+     */
     public SistemaDomotico(String nomeFile){
         this.stanze = new ArrayList<>();
         try{
             FileReader fr = new FileReader(nomeFile);
             BufferedReader br = new BufferedReader(fr);
             String riga = br.readLine();
+            //Ogni file idoneo deve avere scritto alla prima riga "SistemaDomotico"
             if(!riga.equals("SistemaDomotico")){
                 throw new IOException();
             } else {
-                //numero di stanze
+                //carica il numero di stanze
                 riga = br.readLine();
                 int nStanze = Integer.parseInt(riga);
                 for(int i = 0; i < nStanze; ++i){
                     riga = br.readLine();
                     String[] v = riga.split(";");
-                    //Nome della stanza
+                    //nome della stanza
                     this.aggiungiStanza(new Stanza(v[0]));
-                    //numero di prese
+                    //legge il numero di prese in una stanza
                     int nPrese = Integer.parseInt(v[1]);
                     for(int j = 0; j < nPrese; ++j){
 
                         //legge la presa
                         String presa = br.readLine();
                         String[] pr = presa.split(";");
-                        Presa p = new Presa(pr[0],Integer.parseInt(pr[1]),Integer.parseInt(pr[2]), "assets\\presa corrente.jpg");
+                        Presa p = new Presa(pr[0],Integer.parseInt(pr[1]),Integer.parseInt(pr[2]));
                         this.aggiungiPresa(v[0],p);
 
-                        //controlla se la lampadina è occupata
+                        //controlla se la lampadina è occupata attraverso la lunghezza
                         if(pr.length > 3){
 
                             Lampadina l = new Lampadina(pr[3],Float.parseFloat(pr[4]));
@@ -54,35 +61,39 @@ public class SistemaDomotico {
                             if(pr[9].equals("accesa")){
                                 l.accendi();
                             }
+                            //attacca la presa alla lampadina
                             p.setLampadina(l);
                         }
                     }
                 }
 
             }
+            //chiude file reader e buffered reader
             fr.close();
             br.close();
         } catch (IOException e){
+            //se il file non esiste o non è valido, il sistema viene inizializzato come vuoto
             this.stanze = new ArrayList<>();
         }
     }
 
-    public SistemaDomotico() {
-        stanze = new ArrayList<>();
-    }
-
-    //TODO: Salva in un file
+    /**
+     * Ritorna una stringa con tutte le caratteristiche del sistema, che poi verrà stampata nel file CSV.
+     * @param nomeFile Percorso del file dove viene salvato (lo stesso del caricamento)
+     * @throws IOException In caso il file non esiste o non è valido, lancia un'eccezione
+     */
     public void salvaInFile(String nomeFile) throws IOException{
             BufferedWriter bw = new BufferedWriter(new FileWriter(nomeFile));
             bw.write(this.toStringCSVFile());
             bw.close();
     }
 
-    //TODO: Metodi di ricerca
+
     /**
      * Cerca una stanza all'interno del sistema domotico
      * @param nomeStanza Nome della stanza che si desidera cercare (String)
-     * @return Ritorna la stanza se è stata trovata, altrimenti ritorna null
+     * @return Se trovata, ritorna la stanza
+     * @throws StanzaNonTrovata Se non trova la stanza, lancia un'eccezione
      */
     private Stanza cercaStanza (String nomeStanza) throws StanzaNonTrovata{
         for (var i : stanze) {
@@ -95,9 +106,10 @@ public class SistemaDomotico {
 
     /**
      * Cerca una lampadina all'interno del sistema
-     * @param nomeStanza Nome della stanza (String)
-     * @param nomeLampadina Nome della lampadina (String)
-     * @return Ritorna la lampadina; se è stata trovata, altrimenti ritorna null
+     * @param nomeStanza Nome della stanza
+     * @param nomeLampadina Nome della lampadina
+     * @return Se trovata, ritorna la lampadina
+     * @throws LampadinaNonTrovata Se il metodo getLampadina non trova la lampadina, lancia un eccezione
      */
 
     public Lampadina getLampadina(String nomeStanza, String nomeLampadina) throws StanzaNonTrovata, LampadinaNonTrovata{
@@ -105,18 +117,28 @@ public class SistemaDomotico {
         return stanza.getLampadina(nomeLampadina);
     }
 
+    /**
+     * Metodo che cerca una presa all'interno del sistema
+     * @param nomeStanza Nome della stanza in cui si vuole cercare la presa
+     * @param nomePresa Nome della presa
+     * @return Presa
+     * @throws StanzaNonTrovata Se il nome della stanza è errato, lancia un'eccezione
+     * @throws PresaNonTrovata  Se la presa non viene trovata, lancia un'eccezione
+     */
     public Presa getPresa (String nomeStanza, String nomePresa) throws StanzaNonTrovata,PresaNonTrovata{
         Stanza stanza = cercaStanza(nomeStanza);
         return stanza.getPresa(nomePresa);
     }
 
-    //TODO: Metodi di aggiunta
     /**
      * Aggiunge una nuova lampadina a una presa, dato il nome della stanza e della presa che si desidera.
-     * Se è già presente una lampadina, non la sostituisce.
      * @param nomeStanza Nome della stanza in cui si vuole aggiungere la lampadina
      * @param nomePresa Nome della presa a cui si vuole collegare la lampadina
      * @param lampadina Lampadina (Lampadina)
+     * @throws StanzaNonTrovata Se non trova la stanza, lancia un'eccezione
+     * @throws PresaNonTrovata Se non trova la presa, lancia un'eccezione
+     * @throws PresaOccupata Se la presa esiste, ma è già occupata, lancia un'eccezione
+     * @throws LampadinaEsistente Se la lampadina esiste già, lancia un'eccezione
      */
     public void aggiungiLampadina(String nomeStanza, String nomePresa, Lampadina lampadina) throws StanzaNonTrovata, PresaNonTrovata, PresaOccupata, LampadinaEsistente{
 
@@ -124,14 +146,24 @@ public class SistemaDomotico {
         stanza.aggiungiLampadina(nomePresa,lampadina);
     }
 
+    /**
+     * Aggiunge una nuova presa all'interno del sistema Domotico
+     * @param nomeStanza Nome della stanza
+     * @param presa Presa che si vuole aggiungere
+     * @throws StanzaNonTrovata Se non trova la stanza, lancia un'eccezione
+     * @throws PresaEsistente Se nella stanza esiste già una presa, lancia un'eccezione
+     */
     public void aggiungiPresa(String nomeStanza, Presa presa) throws StanzaNonTrovata, PresaEsistente{
         Stanza s;
         s = cercaStanza(nomeStanza);
         s.aggiungiPresa(presa);
     }
 
-
-
+    /**
+     * Aggiunge una stanza al sistema domotico
+     * @param s Stanza
+     * @throws StanzaEsistente Se è già presente una stanza con lo stesso nome, lancia un'eccezione
+     */
     public void aggiungiStanza(Stanza s) throws StanzaEsistente{
         try {
             cercaStanza(s.getNome());
@@ -142,13 +174,26 @@ public class SistemaDomotico {
     }
 
 
-    //TODO: metodi di rimozione
+    /**
+     * Rimuove una presa dal sistema domotico
+     * @param nomeStanza Nome della stanza in cui si vuole cercare
+     * @param nomePresa Nome della presa da rimuovere
+     * @throws StanzaNonTrovata Se non trova la stanza, lancia un'eccezione
+     * @throws PresaNonTrovata Se non trova la presa, lancia un'eccezione
+     */
     public void rimuoviPresa(String nomeStanza, String nomePresa) throws  StanzaNonTrovata, PresaNonTrovata{
         Stanza s;
         s = this.cercaStanza(nomeStanza);
         s.rimuoviPresa(nomePresa);
     }
 
+    /**
+     * Rimuove una lampadina passando il suo nome e quello della stanza
+     * @param nomeStanza Nome della stanza in cui si vuole cercare
+     * @param nomeLampadina Nome della lampadina da rimuovere
+     * @throws StanzaNonTrovata Se non trova la stanza, lancia un'eccezione
+     * @throws LampadinaNonTrovata Se non trova la lampadina nella stanza, lancia un'eccezione
+     */
     public void rimuoviLampadina(String nomeStanza, String nomeLampadina) throws  StanzaNonTrovata, LampadinaNonTrovata{
         Stanza s;
         s = this.cercaStanza(nomeStanza);
@@ -156,16 +201,11 @@ public class SistemaDomotico {
     }
 
     /**
-     * Rimuove una lampadina dato il nome della stanza e quello della presa.
-     * @param nomePresa Nome della presa (String)
-     * @param nomeStanza Nome della stanza (String)
+     * Cerca una stanza all'interno del sistema domotico
+     * @param nomeStanza Nome della stanza
+     * @return Stanza
+     * @throws StanzaNonTrovata Se non esiste una stanza con quel nome, lancia un'eccezione
      */
-    public void RimuoviLampadinaNomePresa(String nomeStanza, String nomePresa) throws StanzaNonTrovata, PresaNonTrovata, LampadinaNonTrovata{
-        Stanza stanza = cercaStanza(nomeStanza);
-        Presa presa = stanza.getPresa(nomePresa);
-        presa.setLampadina(null);
-    }
-    //TODO: Metodi vari
     public Stanza getStanza(String nomeStanza) throws StanzaNonTrovata{
         for(var i :stanze){
             if (i.getNome().equals(nomeStanza)){
@@ -179,7 +219,7 @@ public class SistemaDomotico {
     /**
      * Accende tutte le lampadine di una stanza, dato il suo nome
      * @param nomeStanza Nome stanza
-     * @throws StanzaNonTrovata
+     * @throws StanzaNonTrovata Se non trova la stanza, lancia un'eccezione
      */
     public void accendiStanza(String nomeStanza) throws StanzaNonTrovata{
         Stanza stanza = cercaStanza(nomeStanza);
@@ -188,7 +228,7 @@ public class SistemaDomotico {
     /**
      * Spegne tutte le lampadine di una stanza, dato il suo nome
      * @param nomeStanza Nome stanza
-     * @throws StanzaNonTrovata
+     * @throws StanzaNonTrovata Se non trova la stanza, lancia un'eccezione
      */
     public void spegniStanza(String nomeStanza) throws StanzaNonTrovata{
         Stanza stanza = cercaStanza(nomeStanza);
@@ -203,8 +243,9 @@ public class SistemaDomotico {
                 i.spegniTutte();
         }
     }
+
     /**
-     * Spegne tutte le lampadine del sistema
+     * Accende tutte le lampadine del sistema
      */
     public void accendiTutte(){
         for (var i : stanze) {
@@ -213,8 +254,8 @@ public class SistemaDomotico {
     }
 
     /**
-     * Ritorna la potenza istantanea totale del sistema (ovvero la somma delle singole). Non conta se le lampadine sono spente.
-     * @return Somma delle potenze istantanee (Float)
+     * Ritorna la potenza istantanea totale del sistema (ovvero la somma delle singole lampadine)
+     * @return Somma delle potenze istantanee
      */
     public float getPotenzaSistema(){
         float ritorno = 0;
@@ -224,13 +265,14 @@ public class SistemaDomotico {
         return ritorno;
     }
 
-    //TODO: Metodi vari per la lampadina
 
     /**
-     * Modifica il colore di una lampadina dato il suo nome e quello della stanza in cui è.
-     * @param nomeLampadina Nome della lampadina (String)
-     * @param nomeStanza Nome della stanza (String)
-     * @param colore Colore (String)
+     * Modifica il colore di una lampadina dato il suo nome e quello della stanza in cui è
+     * @param nomeLampadina Nome della lampadina
+     * @param nomeStanza Nome della stanza
+     * @param colore Colore (del packaging graphics)
+     * @throws StanzaNonTrovata Se la stanza non esiste, lancia un'eccezione
+     * @throws LampadinaNonTrovata Se non trova la lampadina, lancia un'eccezione
      */
     public void modificaColoreLampadina(String nomeStanza,String nomeLampadina, Color colore) throws StanzaNonTrovata, LampadinaNonTrovata{
         Stanza s = cercaStanza(nomeStanza);
@@ -239,20 +281,37 @@ public class SistemaDomotico {
     }
 
     /**
-     * Modifica la luminosità di una lampadina dato il suo nome.
-     * @param nomeLampadina Nome della lampadina (String)
-     * @param nomeStanza Nome della stanza (String)
-     * @param lum Luminosità (int)
+     * Modifica la luminosità di una lampadina dato il suo nome e quello della stanza in cui si vuole cercare
+     * @param nomeLampadina Nome della lampadina
+     * @param nomeStanza Nome della stanza
+     * @param lum Luminosità
+     * @throws StanzaNonTrovata Se la stanza non esiste, lancia un'eccezione
+     * @throws LampadinaNonTrovata Se non trova la lampadina, lancia un'eccezione
      */
     public void modificaLumLampadina(String nomeStanza, String nomeLampadina, int lum) throws StanzaNonTrovata, LampadinaNonTrovata{
         Stanza s = cercaStanza(nomeStanza);
         s.setLumLampadina(nomeLampadina, lum);
     }
 
+    /**
+     Aumenta il valore della luminosità della lampadina di 10, dato il suo nome e quello della stanza
+     * @param nomeStanza Nome della stanza
+     * @param nomeLampadina Nome della lampadina
+     * @throws StanzaNonTrovata Se non trova la stanza, lancia un'eccezione
+     * @throws LampadinaNonTrovata Se non trova la lampadina, lancia un'eccezione
+     */
     public void aumentaLumLampadina(String nomeStanza, String nomeLampadina) throws StanzaNonTrovata, LampadinaNonTrovata{
         Stanza s = cercaStanza(nomeStanza);
         s.aumentaLumLampadina(nomeLampadina);
     }
+
+    /**
+     Diminuisce il valore della luminosità della lampadina di 10, dato il suo nome e quello della stanza
+     * @param nomeStanza Nome della stanza
+     * @param nomeLampadina Nome della lampadina
+     * @throws StanzaNonTrovata Se non trova la stanza, lancia un'eccezione
+     * @throws LampadinaNonTrovata Se non trova la lampadina, lancia un'eccezione
+     */
     public void diminuisciLumLampadina(String nomeStanza, String nomeLampadina) throws StanzaNonTrovata, LampadinaNonTrovata{
         Stanza s = cercaStanza(nomeStanza);
         s.diminuisciLumLampadina(nomeLampadina);
@@ -260,9 +319,11 @@ public class SistemaDomotico {
 
 
     /**
-     * Spegne una lampadina di cui si passa il suo nome e quello della stanza.
-     * @param nomeStanza Nome della stanza (String)
-     * @param nomeLampadina Nome della lampadina (String)
+     * Accende una lampadina di cui si passa il suo nome e quello della stanza
+     * @param nomeStanza Nome della stanza
+     * @param nomeLampadina Nome della lampadina
+     * @throws StanzaNonTrovata Se la stanza non esiste, lancia un'eccezione
+     * @throws LampadinaNonTrovata Se non trova la lampadina, lancia un'eccezione
      */
     public void accendiLampadina(String nomeStanza, String nomeLampadina) throws StanzaNonTrovata, LampadinaNonTrovata{
         Stanza s = getStanza(nomeStanza);
@@ -270,44 +331,79 @@ public class SistemaDomotico {
     }
     /**
      * Spegne una lampadina di cui si passa il suo nome e quello della stanza.
-     * @param nomeStanza Nome della stanza (String)
-     * @param nomeLampadina Nome della lampadina (String)
+     * @param nomeStanza Nome della stanza
+     * @param nomeLampadina Nome della lampadina
+     * @throws StanzaNonTrovata Se la stanza non esiste, lancia un'eccezione
+     * @throws LampadinaNonTrovata Se non trova la lampadina, lancia un'eccezione
      */
     public void spegniLampadina(String nomeStanza, String nomeLampadina)throws StanzaNonTrovata, LampadinaNonTrovata{
         Stanza s = getStanza(nomeStanza);
         s.spegniLampadina(nomeLampadina);
     }
 
+    /**
+     * Restituisce lo stato di accensione di una lampadina cercata attraverso il suo nome e quello della stanza
+     * @param nomeStanza Nome della stanza
+     * @param nomeLampadina Nome della lampadina
+     * @return Stato di accensione
+     * @throws StanzaNonTrovata Se la stanza non esiste, lancia un'eccezione
+     * @throws LampadinaNonTrovata Se non trova la lampadina, lancia un'eccezione
+     */
     public boolean isLampadinaAccesa(String nomeStanza, String nomeLampadina)throws StanzaNonTrovata, LampadinaNonTrovata {
         Stanza s = getStanza(nomeStanza);
         return s.isLampadinaAccesa(nomeLampadina);
     }
 
+    /**
+     * Conta quante lampadine sono presenti in una stanza
+     * @param nomeStanza Nome della stanza
+     * @return Numero di lampadine
+     * @throws StanzaNonTrovata Se la stanza non esiste, lancia un'eccezione
+     */
     public int getNumLampadineStanza(String nomeStanza) throws StanzaNonTrovata {
         Stanza s = this.cercaStanza(nomeStanza);
-        return  s.getNumLampadine();
+        return s.getNumLampadine();
     }
 
 
-
-    //TODO: metodi vari per la presa
+    /**
+     * Ritorna se la presa è occupata cercandola attraverso il suo nome
+     * @param nomeStanza Nome della stanza
+     * @param nomePresa Nome della presa
+     * @return Stato di occupazione
+     * @throws StanzaNonTrovata Se la stanza non esiste, lancia un'eccezione
+     * @throws PresaNonTrovata Se non trova la presa, lancia un'eccezione
+     */
     public boolean isPresaOccupata (String nomeStanza, String nomePresa) throws StanzaNonTrovata, PresaNonTrovata {
         Stanza s = this.cercaStanza(nomeStanza);
         Presa p = s.getPresa(nomePresa);
         return p.isOccupata();
     }
 
+    /**
+     * Conta quante prese ci sono in una stanza di cui si passa il nome
+     * @param nomeStanza Nome della stanza
+     * @return Numero di prese nella stanza
+     * @throws StanzaNonTrovata Se la stanza non esiste, lancia un'eccezione
+     */
     public int getNumPreseStanza(String nomeStanza) throws StanzaNonTrovata {
         Stanza s = this.cercaStanza(nomeStanza);
         return  s.getNumPrese();
     }
 
+    /**
+     * Disegna tutte le stanze del sistema domotico
+     */
     public void disegna() {
         for (var i : stanze) {
             i.disegna();
         }
     }
 
+    /**
+     * Ritorna una stringa con tutte le caratteristiche del sistema domotico, che poi verrà stampata nel file CSV.
+     * @return Prima riga: la stringa SistemaDomotico, seconda riga: nome delle stanze, dalla terza in poi scrive le stanze
+     */
     public String toStringCSVFile(){
         StringBuilder ritorno = new StringBuilder("SistemaDomotico\n");
         ritorno.append(stanze.size()).append("\n");
@@ -316,6 +412,11 @@ public class SistemaDomotico {
         }
         return ritorno.toString();
     }
+
+    /**
+     * Converte le caratteristiche della presa in una stringa pensata per stamparla in console
+     * @return elenco di tutte le stanze
+     */
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();

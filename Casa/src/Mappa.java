@@ -3,16 +3,31 @@ import graphics.Line;
 import graphics.Picture;
 import graphics.Text;
 
+/**
+ * Classe Mappa che disegna la piantina della casa
+ * @author Stellino Marco
+ * @author Robolini Paolo
+ * @version 1.0
+ */
 public class Mappa {
     Picture piantina;
 
+    /**
+     * Costruttore
+     * @param percorsoFile Percorso della piantina. Essa deve essere un file png o jpg
+     */
     public Mappa (String percorsoFile) {
         piantina = new Picture();
         piantina.load(percorsoFile);
     }
-    public void disegna() {
-        piantina.draw();
-        int posPartenza = 10, spostamento = 100, altezza = 5;
+
+    /**
+     * Funzione che disegna la griglia/assi cartesiani
+     * @param posPartenza Posizione (intera) da cui inizia la griglia (offset rispetto all'origine degli assi)
+     * @param spostamento Distanza da una linea a quella successiva
+     * @param altezza Lunghezza delle "barrette" più spesse che indicano la distanza
+     */
+    private void disegnaGriglia(int posPartenza, int spostamento, int altezza){
         Line asseX = new Line(0, posPartenza, piantina.getWidth(), posPartenza);
         asseX.draw();
         Text testo = new Text(15,15,"10");
@@ -37,6 +52,13 @@ public class Mappa {
             barretta.draw();
             posX.draw();
         }
+    }
 
+    /**
+     * Funzione che disegna la mappa caricata dal programma con sopra la griglia
+     */
+    public void disegna() {
+        piantina.draw();
+        disegnaGriglia(10,100,5);
     }
 }

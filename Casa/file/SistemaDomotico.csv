@@ -1,5 +1,5 @@
 SistemaDomotico
 2
 Camera;1
-Presa camera;220;300
+Presa camera;300;300;Lampadina camera;11.0;0;255;255;255;spenta
 Cucina;0

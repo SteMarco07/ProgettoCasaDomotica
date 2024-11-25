@@ -190,7 +190,6 @@ public class Canvas
         }
     	g.dispose();    	
     }
-
     public void Stop(){
         frame.dispose();
     }
