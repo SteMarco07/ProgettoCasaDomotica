@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="stellino.marco.casajavafx.CasaJFXController">
+    <top>
+        <HBox spacing="20" alignment="CENTER">
+            <padding>
+                <Insets top="10" bottom="10" left="20" right="20"/>
+            </padding>
+            <Text styleClass="title" text="Sistema Domotico"/>
+            <Region HBox.hgrow="ALWAYS" />
+            <HBox spacing="10" alignment="CENTER">
+                <Button text="Accendi Tutto" onAction="#onTurnAllOnClick" styleClass="system-button"/>
+                <Button text="Spegni Tutto" onAction="#onTurnAllOffClick" styleClass="system-button"/>
+                <Text fx:id="totalPowerText" text="Potenza Totale: 0W"/>
+            </HBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <HBox spacing="10" alignment="CENTER">
+                <Button text="Salva ed Esci" onAction="#onSaveAndExitClick" styleClass="system-button"/>
+                <Button text="Salva CSV" onAction="#onSaveCSVClick" styleClass="system-button"/>
+            </HBox>
+        </HBox>
+    </top>
+
+    <left>
+        <VBox spacing="10" styleClass="side-panel">
+            <padding>
+                <Insets top="10" bottom="10" left="10" right="10"/>
+            </padding>
+            <Text text="Gestione Stanze"/>
+            <TextField fx:id="roomNameField" promptText="Nome Stanza"/>
+            <HBox spacing="5">
+                <Button text="Aggiungi" onAction="#onAddRoomClick"/>
+                <Button text="Rimuovi" onAction="#onDeleteRoomClick"/>
+            </HBox>
+            <ListView fx:id="roomList" prefHeight="200"/>
+            
+            <Text text="Gestione Prese"/>
+            <TextField fx:id="outletNameField" promptText="Nome Presa"/>
+            <HBox spacing="5">
+                <TextField fx:id="outletXField" promptText="X" prefWidth="60"/>
+                <TextField fx:id="outletYField" promptText="Y" prefWidth="60"/>
+            </HBox>
+            <Button text="Aggiungi Presa" onAction="#onAddOutletClick"/>
+            <ListView fx:id="outletList" prefHeight="150"/>
+            
+            <Text text="Gestione Luci"/>
+            <TextField fx:id="lightNameField" promptText="Nome Lampadina"/>
+            <ComboBox fx:id="outletComboBox" promptText="Seleziona Presa"/>
+            <Button text="Aggiungi Lampadina" onAction="#onAddLightClick"/>
+            <ListView fx:id="lightList" prefHeight="150"/>
+        </VBox>
+    </left>
+
+    <center>
+        <StackPane>
+            <ImageView fx:id="houseImage" fitWidth="800" fitHeight="600" preserveRatio="true"/>
+            <Canvas fx:id="houseCanvas" width="800" height="600"/>
+        </StackPane>
+    </center>
+
+    <right>
+        <VBox spacing="10" styleClass="side-panel">
+            <padding>
+                <Insets top="10" bottom="10" left="10" right="10"/>
+            </padding>
+            <Text fx:id="selectedRoomText" text="Nessuna stanza selezionata"/>
+            <VBox fx:id="lightControlsBox" visible="false" managed="false">
+                <Text text="Controlli Lampadina"/>
+                <HBox spacing="10" alignment="CENTER">
+                    <VBox spacing="5" alignment="CENTER">
+                        <Text text="Luminosità"/>
+                        <Slider fx:id="brightnessSlider" min="0" max="100" value="50" showTickLabels="true"/>
+                    </VBox>
+                </HBox>
+                <Text text="Colore"/>
+                <ColorPicker fx:id="lightColorPicker"/>
+                <ToggleButton fx:id="lightToggle" text="Accendi/Spegni" maxWidth="Infinity"/>
+            </VBox>
+        </VBox>
+    </right>
+</BorderPane>
