@@ -125,7 +125,7 @@ public class Presa implements Serializable {
         if (occupata) {
             ritorno += ';' + lampadina.toStringCSVFile();
         }
-        return ritorno + '\n';
+        return ritorno;
     }
 
     /**

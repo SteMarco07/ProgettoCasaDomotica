@@ -278,9 +278,9 @@ public class Stanza implements Serializable {
      * @return Prima riga: nomeStanza + numero di prese, dalla seconda in poi scrive le prese
      */
     public String toStringCSVFile(){
-        StringBuilder ritorno = new StringBuilder(nome + ';' + prese.size() + "\n");
+        StringBuilder ritorno = new StringBuilder("\n" + nome + ';' + prese.size());
         for (var i : prese) {
-            ritorno.append(i.toStringCSVFile());
+            ritorno.append("\n").append(i.toStringCSVFile());
         }
         return ritorno.toString();
     }

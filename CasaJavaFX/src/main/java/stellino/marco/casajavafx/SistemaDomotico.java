@@ -497,8 +497,8 @@ public class SistemaDomotico implements Serializable{
      * @return Prima riga: la stringa SistemaDomotico, seconda riga: nome delle stanze, dalla terza in poi scrive le stanze
      */
     public String toStringCSVFile(){
-        StringBuilder ritorno = new StringBuilder("SistemaDomotico\n");
-        ritorno.append(stanze.size()).append("\n");
+        StringBuilder ritorno = new StringBuilder("SistemaDomotico");
+        ritorno.append("\n").append(stanze.size());
         for(var i : stanze){
             ritorno.append(i.toStringCSVFile());
         }

@@ -173,7 +173,7 @@ public class Lampadina implements Serializable {
         String s = this.nome + ";" + this.potenza + ";" + this.lum + ";" + 
                   this.coloreRGB + ";";
         s += this.accesa ? "accesa" : "spenta";
-        return s + "\n";
+        return s;
     }
 
     /**
