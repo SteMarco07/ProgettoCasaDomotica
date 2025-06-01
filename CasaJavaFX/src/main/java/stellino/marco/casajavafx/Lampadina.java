@@ -224,5 +224,3 @@ public class Lampadina implements Serializable {
         gc.fillText(nome, x - bulbSize/2, y - bulbSize - baseHeight - 5);
     }
 }
-
-

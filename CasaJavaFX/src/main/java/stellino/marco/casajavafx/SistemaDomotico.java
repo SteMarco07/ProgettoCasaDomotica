@@ -22,13 +22,7 @@ public class SistemaDomotico implements Serializable{
      * @param nomeFileCSV Nome del file CSV
      */
     public SistemaDomotico(String nomeFileSerializzato, String nomeFileCSV) {
-        this.stanze = new ArrayList<>();
-        try {
-            SistemaDomotico deserializzato = deserializza(nomeFileSerializzato);
-            this.stanze = deserializzato.stanze;
-        } catch (IOException | ClassNotFoundException e) {
-            this.caricaDaFileCSV(nomeFileCSV);
-        }
+        costruttore(nomeFileSerializzato, nomeFileCSV);
     }
 
     /**
@@ -38,12 +32,21 @@ public class SistemaDomotico implements Serializable{
         String binPath = "file" + File.separator + "SistemaDomotico.bin";
         String csvPath = "file" + File.separator + "SistemaDomotico.csv";
 
+        costruttore(binPath, csvPath);
+        
+    }
+
+    /**
+     * Costruttore che carica prima da un file binario, se fallisce prova il caricamento tramite file CSV, se fallisce anche quest'ultima lo cra vuoto
+     * @param binPath Percorso del file binario
+     * @param csvPath Percorso del file CSV
+     */
+    private void costruttore(String binPath, String csvPath){
         this.stanze = new ArrayList<>();
 
         try {
             File binFile = new File(binPath);
             if (binFile.exists()) {
-                
                 SistemaDomotico deserializzato = deserializza(binPath);
                 this.stanze = deserializzato.stanze;
                 System.out.println("Caricato dalla serializzazione.");
@@ -59,15 +62,20 @@ public class SistemaDomotico implements Serializable{
             System.out.println("Errore durante il caricamento: " + e.getMessage());
             File csvFile = new File(csvPath);
             if (csvFile.exists()) {
-                this.caricaDaFileCSV(csvPath);
-                System.out.println("Caricato dal file CSV.");
+                try{
+                    this.caricaDaFileCSV(csvPath);
+                    System.out.println("Caricato dal file CSV.");
+                } catch (Exception ex) {
+                    System.out.println("Errore durante il caricamento dal file CSV: " + ex.getMessage());
+                    this.stanze = new ArrayList<>();
+                    System.out.println("Creato dal nulla");
+                }
             } else{
                 this.stanze = new ArrayList<>();
                 System.out.println("Creato dal nulla");
             }
             
         }
-        
     }
 
     /**
