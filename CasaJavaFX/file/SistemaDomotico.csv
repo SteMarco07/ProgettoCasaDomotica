@@ -1,4 +1,7 @@
 SistemaDomotico
-1
+2
 a;1
-presa a;100;100;lampadina a;12.0;100;255;255;255;accesa
+presa A;200;200;lampada A;60.0;100;0xff0000ff;accesa
+
+b;1
+presa stanza b;150;300

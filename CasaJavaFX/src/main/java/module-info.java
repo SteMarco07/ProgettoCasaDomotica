@@ -1,7 +1,6 @@
 module stellino.marco.casajavafx {
     requires javafx.controls;
     requires javafx.fxml;
-    requires transitive javafx.graphics;
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;

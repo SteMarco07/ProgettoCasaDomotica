@@ -1,7 +1,6 @@
 package stellino.marco.casajavafx;
 
 import Eccezioni.*;
-import javafx.scene.paint.Color;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -163,13 +162,12 @@ public class Stanza implements Serializable {
     /**
      * Modifica il colore di una lampadina
      * @param nomeLampadina Nome della lampadina di cui si desidera modificare il colore
-     * @param colore Colore
+     * @param coloreRGB Stringa RGB del colore
      * @throws LampadinaNonTrovata Se non trova la lampadina all'interno della stanza, lancia un'eccezione
      */
-    public void setColore(String nomeLampadina, Color colore) throws LampadinaNonTrovata{
-        Lampadina l;
-        l = getLampadina(nomeLampadina);
-        l.setColore(colore);
+    public void setColore(String nomeLampadina, String coloreRGB) throws LampadinaNonTrovata{
+        Lampadina l = getLampadina(nomeLampadina);
+        l.setColoreRGB(coloreRGB);
     }
 
     /**

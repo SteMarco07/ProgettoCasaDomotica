@@ -15,8 +15,7 @@ import javafx.scene.layout.VBox;
 import java.io.IOException;
 import java.io.File;
 
-
-
+// Assicurati che il package Eccezioni sia correttamente definito e accessibile
 import Eccezioni.*;
 
 public class CasaJFXController {
@@ -50,33 +49,51 @@ public class CasaJFXController {
     @FXML
     public void initialize() {
         sistema = new SistemaDomotico();
-        
-        // Load house background image
+
+        // Carica l'immagine di sfondo della casa
+        // Assicurati che "casa.jpg" si trovi nella stessa directory del file FXML
         Image img = new Image(getClass().getResourceAsStream("casa.jpg"));
         houseImage.setImage(img);
-        
-        // Configure room list selection listener
+
+        // Configura il listener per la selezione della lista delle stanze
         roomList.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
                 updateRoomSelection(newVal);
+            } else {
+                // Se nessuna stanza è selezionata, pulisci le liste e nascondi i controlli
+                selectedRoomText.setText("Nessuna Stanza Selezionata");
+                outletList.setItems(FXCollections.emptyObservableList());
+                outletComboBox.setItems(FXCollections.emptyObservableList());
+                lightList.setItems(FXCollections.emptyObservableList());
+                updateLightControls(null, null);
             }
-        });
-
-        // Configure light list selection listener
+        });        // Configura il listener per la selezione della lista delle lampadine
+        // Questo listener viene attivato ogni volta che la selezione nella lista cambia
         lightList.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             String selectedRoom = roomList.getSelectionModel().getSelectedItem();
-            if (newVal != null) {
-                String lightName = newVal.split(" ")[0]; // Remove (ON)/(OFF) suffix
-                updateLightControls(selectedRoom, lightName);
+            if (newVal != null && selectedRoom != null) {
+                try {
+                    // Estrai il nome della lampadina rimuovendo il suffisso (ON)/(OFF)
+                    String lightName = newVal.contains("(OFF)") ? newVal.substring(0, newVal.length()-6) : newVal.substring(0, newVal.length()-5);
+
+                    System.out.println("Lightname: '" + newVal + "' Nome pulito: '" + lightName + "'");
+                    // Verifica che la lampadina esista prima di aggiornare i controlli
+                    sistema.getStanza(selectedRoom).getLampadina(lightName);
+                    updateLightControls(selectedRoom, lightName);
+                } catch (StanzaNonTrovata | LampadinaNonTrovata e) {
+                    showError("Errore", "Impossibile trovare la lampadina: " + e.getMessage());
+                    updateLightControls(null, null);
+                }
             } else {
+                // Se non c'è selezione o non c'è stanza selezionata, nascondi i controlli
                 updateLightControls(null, null);
             }
         });
 
-        // Configure light controls
+        // Configura i controlli della lampadina
         lightColorPicker.setValue(javafx.scene.paint.Color.WHITE);
         lightColorPicker.setOnAction(e -> updateSelectedLightColor());
-        
+
         brightnessSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             updateSelectedLightBrightness();
         });
@@ -87,7 +104,9 @@ public class CasaJFXController {
 
         updateTotalPower();
         updateHouseLayout();
+        // Inizialmente, nessun controllo lampadina è visibile
         updateLightControls(null, null);
+        updateRoomsList(); // Popola la lista delle stanze all'avvio
     }
 
     @FXML
@@ -95,9 +114,9 @@ public class CasaJFXController {
         try {
             sistema.accendiTutte();
             updateTotalPower();
-            updateLightsList(); // Refresh the UI
+            updateLightsList(); // Aggiorna la UI dopo aver acceso tutte le lampadine
         } catch (Exception e) {
-            showError("Error turning on all lights", e.getMessage());
+            showError("Errore nell'accensione", "Non è stato possibile accendere tutte le lampadine: " + e.getMessage());
         }
     }
 
@@ -106,9 +125,9 @@ public class CasaJFXController {
         try {
             sistema.spegniTutte();
             updateTotalPower();
-            updateLightsList(); // Refresh the UI
+            updateLightsList(); // Aggiorna la UI dopo aver spento tutte le lampadine
         } catch (Exception e) {
-            showError("Error turning off all lights", e.getMessage());
+            showError("Errore nello spegnimento", "Non è stato possibile spegnere tutte le lampadine: " + e.getMessage());
         }
     }
 
@@ -116,7 +135,7 @@ public class CasaJFXController {
     protected void onAddRoomClick() {
         String roomName = roomNameField.getText().trim();
         if (roomName.isEmpty()) {
-            showError("Invalid Room Name", "Please enter a room name");
+            showError("Nome Stanza Non Valido", "Per favore, inserisci un nome per la stanza.");
             return;
         }
 
@@ -126,70 +145,51 @@ public class CasaJFXController {
             roomNameField.clear();
             updateHouseLayout();
         } catch (StanzaEsistente e) {
-            showError("Room Already Exists", "A room with this name already exists");
+            showError("Stanza Già Esistente", "Una stanza con questo nome esiste già.");
         }
     }
-
-    @FXML
-    protected void onDeleteRoomClick() {
-        String selectedRoom = roomList.getSelectionModel().getSelectedItem();
-        if (selectedRoom == null) {
-            showError("No Room Selected", "Please select a room to delete");
-            return;
-        }
-
-        try {
-            // Remove room logic here
-            updateRoomsList();
-            selectedRoomText.setText("No Room Selected");
-            updateTotalPower();
-            updateHouseLayout();
-        } catch (Exception e) {
-            showError("Error Deleting Room", e.getMessage());
-        }
-    }
-
+    
     @FXML
     protected void onAddOutletClick() {
         String selectedRoom = roomList.getSelectionModel().getSelectedItem();
         if (selectedRoom == null) {
-            showError("No Room Selected", "Please select a room first");
+            showError("Nessuna Stanza Selezionata", "Per favore, seleziona prima una stanza.");
             return;
         }
 
         String outletName = outletNameField.getText().trim();
         if (outletName.isEmpty()) {
-            showError("Invalid Outlet Name", "Please enter an outlet name");
+            showError("Nome Presa Non Valido", "Per favore, inserisci un nome per la presa.");
             return;
         }
 
-        // Get and validate coordinates
+        // Ottieni e valida le coordinate
         String xStr = outletXField.getText().trim();
         String yStr = outletYField.getText().trim();
         if (xStr.isEmpty() || yStr.isEmpty()) {
-            showError("Invalid Position", "Please enter X and Y coordinates");
+            showError("Posizione Non Valida", "Per favore, inserisci le coordinate X e Y.");
             return;
         }
 
         try {
             int x = Integer.parseInt(xStr);
             int y = Integer.parseInt(yStr);
-            
-            // Create presa with position
+
+            // Crea la presa con la posizione
             Presa presa = new Presa(outletName, x, y);
             sistema.aggiungiPresa(selectedRoom, presa);
-            
-            // Clear inputs
+
+            // Pulisci gli input
             outletNameField.clear();
             outletXField.clear();
             outletYField.clear();
-            
+
             updateOutletsList(selectedRoom);
             updateHouseLayout();
         } catch (NumberFormatException e) {
-            showError("Invalid Position", "X and Y must be numbers");
+            showError("Posizione Non Valida", "Le coordinate X e Y devono essere numeri.");
         } catch (StanzaNonTrovata | PresaEsistente e) {
-            showError("Error Adding Outlet", e.getMessage());
+            showError("Errore Aggiunta Presa", e.getMessage());
         }
     }
 
@@ -200,30 +200,31 @@ public class CasaJFXController {
         String lightName = lightNameField.getText().trim();
 
         if (selectedRoom == null || selectedOutlet == null) {
-            showError("Selection Required", "Please select both a room and an outlet");
+            showError("Selezione Richiesta", "Per favore, seleziona sia una stanza che una presa.");
             return;
         }
 
         if (lightName.isEmpty()) {
-            showError("Invalid Light Name", "Please enter a light name");
+            showError("Nome Lampadina Non Valido", "Per favore, inserisci un nome per la lampadina.");
             return;
         }
 
         try {
-            Lampadina light = new Lampadina(lightName, 60); // Example: 60W bulb
+            Lampadina light = new Lampadina(lightName, 60); // Esempio: lampadina da 60W
             sistema.aggiungiLampadina(selectedRoom, selectedOutlet, light);
-            updateLightsList();
+            updateLightsList(); // Aggiorna la lista delle lampadine
             lightNameField.clear();
             updateHouseLayout();
         } catch (StanzaNonTrovata | PresaNonTrovata | PresaOccupata | LampadinaEsistente e) {
-            showError("Error Adding Light", e.getMessage());
+            showError("Errore Aggiunta Lampadina", e.getMessage());
         }
     }
 
     private void updateRoomSelection(String roomName) {
-        selectedRoomText.setText("Room: " + roomName);
+        currentRoomName = roomName; // Aggiorna la stanza corrente selezionata
+        selectedRoomText.setText("Stanza: " + roomName);
         updateOutletsList(roomName);
-        updateLightsList();
+        updateLightsList(); // Aggiorna la lista delle lampadine quando cambia la stanza
         updateHouseLayout();
     }
 
@@ -245,15 +246,30 @@ public class CasaJFXController {
             outletList.setItems(outlets);
             outletComboBox.setItems(outlets);
         } catch (StanzaNonTrovata e) {
-            showError("Error", "Could not find room: " + roomName);
+            showError("Errore", "Impossibile trovare la stanza: " + roomName);
+            outletList.setItems(FXCollections.emptyObservableList());
+            outletComboBox.setItems(FXCollections.emptyObservableList());
         }
     }
 
+    /**
+     * Aggiorna la lista delle lampadine, preservando la selezione corrente.
+     */
     private void updateLightsList() {
         String selectedRoom = roomList.getSelectionModel().getSelectedItem();
         if (selectedRoom == null) {
+            // Se nessuna stanza è selezionata, svuota la lista delle lampadine e nascondi i controlli
+            lightList.setItems(FXCollections.emptyObservableList());
             updateLightControls(null, null);
             return;
+        }
+
+        // Salva il nome della lampadina attualmente selezionata (se presente)
+        String previouslySelectedLightName = null;
+        String currentSelectedItemInList = lightList.getSelectionModel().getSelectedItem();
+        if (currentSelectedItemInList != null) {
+            // Estrai solo il nome della lampadina (es. "Lampadina1" da "Lampadina1 (ON)")
+            previouslySelectedLightName = currentSelectedItemInList.split(" ")[0];
         }
 
         try {
@@ -262,48 +278,74 @@ public class CasaJFXController {
             for (Lampadina lamp : stanza.getLampadine()) {
                 lights.add(lamp.getNome() + (lamp.isAcceso() ? " (ON)" : " (OFF)"));
             }
-            lightList.setItems(lights);
+            lightList.setItems(lights); // Aggiorna gli elementi della ListView
 
-            // Update light controls based on selection
-            String selectedLight = lightList.getSelectionModel().getSelectedItem();
-            if (selectedLight != null) {
-                updateLightControls(selectedRoom, selectedLight.split(" ")[0]);
+            // Tenta di riselezionare la lampadina che era precedentemente selezionata
+            if (previouslySelectedLightName != null) {
+                for (String item : lights) {
+                    // Controlla se l'elemento nella nuova lista inizia con il nome della lampadina salvato
+                    if (item.startsWith(previouslySelectedLightName + " ")) {
+                        lightList.getSelectionModel().select(item);
+                        // Il listener di lightList.selectedItemProperty() si attiverà automaticamente
+                        // per aggiornare i controlli, quindi non è necessario chiamare updateLightControls qui.
+                        break;
+                    }
+                }
             } else {
+                // Se non c'era nessuna selezione precedente o l'elemento non è più presente,
+                // assicurati che i controlli siano nascosti.
                 updateLightControls(null, null);
             }
+
         } catch (StanzaNonTrovata e) {
-            showError("Error", "Could not find room: " + selectedRoom);
+            showError("Errore", "Impossibile trovare la stanza: " + selectedRoom);
+            lightList.setItems(FXCollections.emptyObservableList()); // Svuota la lista in caso di errore
             updateLightControls(null, null);
         }
     }
 
+    /**
+     * Aggiorna i controlli della lampadina (slider, color picker, toggle) in base alla lampadina selezionata.
+     * Nasconde i controlli se roomName o lightName sono null.
+     */
     private void updateLightControls(String roomName, String lightName) {
-        currentLightName = lightName;
-        currentRoomName = roomName;
-        
+        this.currentLightName = lightName;
+        this.currentRoomName = roomName;
+
         if (roomName == null || lightName == null) {
             lightControlsBox.setVisible(false);
-            lightControlsBox.setManaged(false);
+            lightControlsBox.setManaged(false); // Non occupa spazio nel layout
             return;
         }
 
         try {
             Stanza stanza = sistema.getStanza(roomName);
             Lampadina lamp = stanza.getLampadina(lightName);
-            
-            // Update controls with current light state
+
+            // Aggiorna i controlli con lo stato attuale della lampadina
             lightToggle.setSelected(lamp.isAcceso());
             brightnessSlider.setValue(lamp.getLum());
-            
-            Color lampColor = lamp.getColore();
-            lightColorPicker.setValue(lampColor);
-            
+
+            // Usa la stringa RGB per ottenere il colore della lampadina e impostarlo nel ColorPicker
+            String lampColor = lamp.getColoreRGB();
+            // Gestisce il caso in cui il colore non sia un formato web valido, impostando il bianco come fallback
+            try {
+                lightColorPicker.setValue(Color.web(lampColor));
+            } catch (IllegalArgumentException e) {
+                System.err.println("Formato colore RGB non valido per la lampadina " + lightName + ": " + lampColor + ". Impostazione su bianco.");
+                lightColorPicker.setValue(Color.WHITE);
+            }
+
             lightControlsBox.setVisible(true);
-            lightControlsBox.setManaged(true);
-        } catch (StanzaNonTrovata | LampadinaNonTrovata e) {
+            lightControlsBox.setManaged(true); // Occupa spazio nel layout
+        } catch (StanzaNonTrovata e) {
+            showError("Errore", "Impossibile trovare la stanza: " + e.getMessage());
             lightControlsBox.setVisible(false);
             lightControlsBox.setManaged(false);
-            showError("Error", "Could not find light: " + e.getMessage());
+        } catch (LampadinaNonTrovata e) {
+            showError("Errore", "Impossibile trovare la lampadina: " + e.getMessage());
+            lightControlsBox.setVisible(false);
+            lightControlsBox.setManaged(false);
         }
     }
 
@@ -315,7 +357,7 @@ public class CasaJFXController {
             updateTotalPower();
             updateHouseLayout();
         } catch (StanzaNonTrovata | LampadinaNonTrovata e) {
-            showError("Error", "Could not update light brightness: " + e.getMessage());
+            showError("Errore", "Impossibile aggiornare la luminosità della lampadina: " + e.getMessage());
         }
     }
 
@@ -329,10 +371,10 @@ public class CasaJFXController {
                 sistema.spegniLampadina(currentRoomName, currentLightName);
             }
             updateTotalPower();
-            updateLightsList();
+            updateLightsList(); // Aggiorna la lista per riflettere lo stato ON/OFF
             updateHouseLayout();
         } catch (StanzaNonTrovata | LampadinaNonTrovata e) {
-            showError("Error", "Could not toggle light: " + e.getMessage());
+            showError("Errore", "Impossibile cambiare lo stato della lampadina: " + e.getMessage());
         }
     }
 
@@ -342,20 +384,21 @@ public class CasaJFXController {
         try {
             Stanza stanza = sistema.getStanza(currentRoomName);
             Lampadina lamp = stanza.getLampadina(currentLightName);
-            
-            // Update the light's color with the selected color from the color picker
-            lamp.setColore(lightColorPicker.getValue());
-            
-            // Update the visual representation of the light
+
+            // Aggiorna il colore della lampadina con il colore selezionato dal ColorPicker
+            // lightColorPicker.getValue().toString() restituisce una stringa nel formato 0xRRGGBBAA
+            lamp.setColoreRGB(lightColorPicker.getValue().toString());
+
+            // Aggiorna la rappresentazione visiva della casa
             updateHouseLayout();
         } catch (StanzaNonTrovata | LampadinaNonTrovata e) {
-            showError("Error", "Could not update light color: " + e.getMessage());
+            showError("Errore", "Impossibile aggiornare il colore della lampadina: " + e.getMessage());
         }
     }
 
     private void updateTotalPower() {
         float totalPower = sistema.getPotenzaSistema();
-        totalPowerText.setText(String.format("Total Power: %.1fW", totalPower));
+        totalPowerText.setText(String.format("Potenza Totale: %.1fW", totalPower));
     }
 
     private void showError(String title, String content) {
@@ -369,30 +412,30 @@ public class CasaJFXController {
     private void drawGrid(GraphicsContext gc) {
         double width = houseCanvas.getWidth();
         double height = houseCanvas.getHeight();
-        
+
         gc.setStroke(javafx.scene.paint.Color.BLACK);
         gc.setLineWidth(1);
-        
-        // Draw axes
-        gc.strokeLine(GRID_START, GRID_START, width, GRID_START);  // X axis
-        gc.strokeLine(GRID_START, GRID_START, GRID_START, height); // Y axis
-        
-        // Draw grid and ticks
+
+        // Disegna gli assi
+        gc.strokeLine(GRID_START, GRID_START, width, GRID_START);  // Asse X
+        gc.strokeLine(GRID_START, GRID_START, GRID_START, height); // Asse Y
+
+        // Disegna la griglia e i segni di spunta
         gc.setStroke(javafx.scene.paint.Color.rgb(200, 200, 200));
         for (int i = GRID_START + GRID_STEP; i < width; i += GRID_STEP) {
-            // Vertical grid line
+            // Linea verticale della griglia
             gc.strokeLine(i, GRID_START, i, height);
-            // X axis tick
+            // Segno di spunta asse X
             gc.setStroke(javafx.scene.paint.Color.BLACK);
             gc.strokeLine(i, GRID_START, i, GRID_START + GRID_TICK_SIZE);
             gc.strokeText(String.valueOf(i), i - 10, GRID_START + 20);
             gc.setStroke(javafx.scene.paint.Color.rgb(200, 200, 200));
         }
-        
+
         for (int i = GRID_START + GRID_STEP; i < height; i += GRID_STEP) {
-            // Horizontal grid line
+            // Linea orizzontale della griglia
             gc.strokeLine(GRID_START, i, width, i);
-            // Y axis tick
+            // Segno di spunta asse Y
             gc.setStroke(javafx.scene.paint.Color.BLACK);
             gc.strokeLine(GRID_START, i, GRID_START + GRID_TICK_SIZE, i);
             gc.strokeText(String.valueOf(i), GRID_START - 30, i + 5);
@@ -403,53 +446,21 @@ public class CasaJFXController {
     private void updateHouseLayout() {
         GraphicsContext gc = houseCanvas.getGraphicsContext2D();
         gc.clearRect(0, 0, houseCanvas.getWidth(), houseCanvas.getHeight());
-        
-        // Draw grid
+
+        // Disegna la griglia
         drawGrid(gc);
-        
-        // Draw rooms and their contents
+
+        // Disegna le stanze e il loro contenuto
         for (Stanza stanza : sistema.getStanze()) {
             for (Presa presa : stanza.getPrese()) {
-                // Draw outlet as a small square
-                gc.setFill(javafx.scene.paint.Color.GRAY);
-                gc.fillRect(presa.getX(), presa.getY(), 10, 10);
-                
-                // Draw light if present
+                // Delega il disegno alla Presa
+                presa.disegna(gc);
+
+                // Delega il disegno alla Lampadina se presente
                 Lampadina lamp = presa.getLampadina();
                 if (lamp != null) {
-                    int outletX = presa.getX();
-                    int outletY = presa.getY();
-                    double bulbSize = 20;  // Dimensione del bulbo
-                    double baseWidth = 10;  // Larghezza della base
-                    double baseHeight = 5;  // Altezza della base
-                    
-                    // Draw base (rectangle)
-                    gc.setFill(javafx.scene.paint.Color.GRAY);
-                    gc.fillRect(outletX - baseWidth/2, outletY - baseHeight, baseWidth, baseHeight);
-                    
-                    // Draw bulb border (ellipse)
-                    gc.setStroke(javafx.scene.paint.Color.BLACK);
-                    gc.strokeOval(outletX - bulbSize/2, outletY - bulbSize - baseHeight, bulbSize, bulbSize);
-                    
-                    // Draw bulb (ellipse with color)
-                    if (lamp.isAcceso()) {
-                        javafx.scene.paint.Color color = lightColorPicker.getValue();
-                        double brightness = lamp.getLum() / 100.0;
-                        javafx.scene.paint.Color fxColor = new javafx.scene.paint.Color(
-                            color.getRed(),
-                            color.getGreen(),
-                            color.getBlue(),
-                            brightness
-                        );
-                        gc.setFill(fxColor);
-                    } else {
-                        gc.setFill(javafx.scene.paint.Color.WHITE);
-                    }
-                    gc.fillOval(outletX - bulbSize/2, outletY - bulbSize - baseHeight, bulbSize, bulbSize);
-                    
-                    // Draw light name
-                    gc.setFill(javafx.scene.paint.Color.BLACK);
-                    gc.fillText(lamp.getNome(), outletX - bulbSize/2, outletY - bulbSize - baseHeight - 5);
+                    // Passa le coordinate della presa alla lampadina per il disegno
+                    lamp.disegna(gc, presa.getX(), presa.getY());
                 }
             }
         }
@@ -468,10 +479,10 @@ public class CasaJFXController {
     protected void onSaveAndExitClick() {
         try {
             sistema.serializza(getFilePath("SistemaDomotico.bin"));
-            showInfo("Salvataggio completato", "Il sistema è stato salvato correttamente");
+            showInfo("Salvataggio Completato", "Il sistema è stato salvato correttamente.");
             System.exit(0);
         } catch (IOException e) {
-            showError("Errore durante il salvataggio", "Non è stato possibile salvare il sistema: " + e.getMessage());
+            showError("Errore Durante il Salvataggio", "Non è stato possibile salvare il sistema: " + e.getMessage());
         }
     }
 
@@ -479,9 +490,9 @@ public class CasaJFXController {
     protected void onSaveCSVClick() {
         try {
             sistema.salvaInFileCSV(getFilePath("SistemaDomotico.csv"));
-            showInfo("Salvataggio completato", "Il sistema è stato salvato correttamente in formato CSV");
+            showInfo("Salvataggio Completato", "Il sistema è stato salvato correttamente in formato CSV.");
         } catch (IOException e) {
-            showError("Errore durante il salvataggio", "Non è stato possibile salvare il sistema in CSV: " + e.getMessage());
+            showError("Errore Durante il Salvataggio", "Non è stato possibile salvare il sistema in CSV: " + e.getMessage());
         }
     }
 

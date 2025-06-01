@@ -39,7 +39,6 @@
             <TextField fx:id="roomNameField" promptText="Nome Stanza"/>
             <HBox spacing="5">
                 <Button text="Aggiungi" onAction="#onAddRoomClick"/>
-                <Button text="Rimuovi" onAction="#onDeleteRoomClick"/>
             </HBox>
             <ListView fx:id="roomList" prefHeight="200"/>
             

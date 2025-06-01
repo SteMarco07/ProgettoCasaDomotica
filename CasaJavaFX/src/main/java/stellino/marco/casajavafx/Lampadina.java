@@ -12,7 +12,7 @@ public class Lampadina implements Serializable {
     private int lum;
     private final float potenza;
     private boolean accesa;
-    private Color colore;
+    private String coloreRGB; // Salva il colore come stringa RGB invece di un oggetto Color
 
     private final static int lumMin = 0;
     private final static int lumMax = 100;
@@ -27,7 +27,21 @@ public class Lampadina implements Serializable {
         this.potenza = potenza;
         this.accesa = false;
         this.lum = 100;
-        this.colore = Color.WHITE;
+        this.coloreRGB = "#FFFFFF"; // Colore bianco di default
+    }
+
+    /**
+     * Modifica il costruttore per accettare un colore come stringa RGB.
+     * @param nome Nome della lampadina
+     * @param potenza Potenza della lampadina
+     * @param coloreRGB Stringa RGB del colore
+     */
+    public Lampadina(String nome, float potenza, String coloreRGB) {
+        this.nome = nome;
+        this.potenza = potenza;
+        this.accesa = false;
+        this.lum = 100;
+        this.coloreRGB = coloreRGB;
     }
 
     /**
@@ -41,11 +55,11 @@ public class Lampadina implements Serializable {
     }
 
     /**
-     * Ritorna il colore della lampadina
-     * @return colore (Color)
+     * Ritorna la stringa RGB del colore della lampadina.
+     * @return Stringa RGB del colore
      */
-    public Color getColore() {
-        return this.colore;
+    public String getColoreRGB() {
+        return this.coloreRGB;
     }
 
     /**
@@ -65,11 +79,11 @@ public class Lampadina implements Serializable {
     }
 
     /**
-     * Modifica il colore della lampadina
-     * @param colore Colore JavaFX
+     * Modifica il colore della lampadina.
+     * @param coloreRGB Stringa RGB del colore
      */
-    public void setColore(Color colore) {
-        this.colore = colore;
+    public void setColoreRGB(String coloreRGB) {
+        this.coloreRGB = coloreRGB;
     }
 
     /**
@@ -157,10 +171,7 @@ public class Lampadina implements Serializable {
      */
     public String toStringCSVFile() {
         String s = this.nome + ";" + this.potenza + ";" + this.lum + ";" + 
-                  String.format("#%02X%02X%02X", 
-                      (int)(this.colore.getRed() * 255),
-                      (int)(this.colore.getGreen() * 255),
-                      (int)(this.colore.getBlue() * 255)) + ";";
+                  this.coloreRGB + ";";
         s += this.accesa ? "accesa" : "spenta";
         return s + "\n";
     }
@@ -174,10 +185,7 @@ public class Lampadina implements Serializable {
         return  "\n\tLAMPADINA " + this.nome +
                 "\n\t\tPotenza: " + this.potenza +
                 "\n\t\tLuminosità: " + this.lum +
-                "\n\t\tColore: " + String.format("#%02X%02X%02X", 
-                    (int)(this.colore.getRed() * 255),
-                    (int)(this.colore.getGreen() * 255),
-                    (int)(this.colore.getBlue() * 255)) +
+                "\n\t\tColore: " + this.coloreRGB +
                 "\n\t\tAccesa: " + this.accesa;
     }
 
@@ -204,12 +212,7 @@ public class Lampadina implements Serializable {
         if (accesa) {
             // Modifica l'opacità in base alla luminosità
             double brightness = lum / 100.0;
-            Color fxColor = new Color(
-                colore.getRed(),
-                colore.getGreen(),
-                colore.getBlue(),
-                brightness
-            );
+            Color fxColor = Color.web(coloreRGB, brightness);
             gc.setFill(fxColor);
         } else {
             gc.setFill(Color.WHITE);

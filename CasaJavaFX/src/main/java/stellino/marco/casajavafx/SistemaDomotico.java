@@ -6,7 +6,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 /**
- * Classe che rappresenta un sistema domotico, con un numero indefinito di stanze.
+ * Classe che rappresenta un sistema domotica, con un numero indefinito di stanze.
  * @author Stellino Marco
  * @author Robolini Paolo
  * @version 1.0
@@ -39,21 +39,35 @@ public class SistemaDomotico implements Serializable{
         String csvPath = "file" + File.separator + "SistemaDomotico.csv";
 
         this.stanze = new ArrayList<>();
+
         try {
             File binFile = new File(binPath);
             if (binFile.exists()) {
+                
                 SistemaDomotico deserializzato = deserializza(binPath);
                 this.stanze = deserializzato.stanze;
+                System.out.println("Caricato dalla serializzazione.");
+                
             } else {
                 File csvFile = new File(csvPath);
                 if (csvFile.exists()) {
                     this.caricaDaFileCSV(csvPath);
+                    System.out.println("Caricato dal file CSV.");
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
-            // Se entrambi i tentativi falliscono, inizializza vuoto
-            this.stanze = new ArrayList<>();
+            System.out.println("Errore durante il caricamento: " + e.getMessage());
+            File csvFile = new File(csvPath);
+            if (csvFile.exists()) {
+                this.caricaDaFileCSV(csvPath);
+                System.out.println("Caricato dal file CSV.");
+            } else{
+                this.stanze = new ArrayList<>();
+                System.out.println("Creato dal nulla");
+            }
+            
         }
+        
     }
 
     /**
@@ -116,11 +130,9 @@ public class SistemaDomotico implements Serializable{
                             Lampadina l = new Lampadina(pr[3],Float.parseFloat(pr[4]));
                             l.setLum(Integer.parseInt(pr[5]));
                             //Colori
-                            int R = Integer.parseInt(pr[6]);
-                            int G = Integer.parseInt(pr[7]);
-                            int B = Integer.parseInt(pr[8]);
-                            l.setColore(javafx.scene.paint.Color.rgb(R,G,B));
-                            if(pr[9].equals("accesa")){
+                            String coloreRGB = pr[6]; // Usa la stringa RGB direttamente
+                            l.setColoreRGB(coloreRGB);
+                            if(pr[7].equals("accesa")){
                                 l.accendi();
                             }
                             //attacca la presa alla lampadina
@@ -262,6 +274,16 @@ public class SistemaDomotico implements Serializable{
     }
 
     /**
+     * Rimuove una stanza dal sistema domotico
+     * @param nomeStanza Nome della stanza da rimuovere
+     * @throws StanzaNonTrovata Se non trova la stanza, lancia un'eccezione
+     */
+    public void rimuoviStanza(String nomeStanza) throws StanzaNonTrovata {
+        Stanza s = this.getStanza(nomeStanza);
+        stanze.remove(s);
+    }
+
+    /**
      * Cerca una stanza all'interno del sistema domotico
      * @param nomeStanza Nome della stanza
      * @return Stanza
@@ -335,7 +357,7 @@ public class SistemaDomotico implements Serializable{
      * @throws StanzaNonTrovata Se la stanza non esiste, lancia un'eccezione
      * @throws LampadinaNonTrovata Se non trova la lampadina, lancia un'eccezione
      */
-    public void modificaColoreLampadina(String nomeStanza,String nomeLampadina, javafx.scene.paint.Color colore) throws StanzaNonTrovata, LampadinaNonTrovata{
+    public void modificaColoreLampadina(String nomeStanza,String nomeLampadina, String colore) throws StanzaNonTrovata, LampadinaNonTrovata{
         Stanza s = cercaStanza(nomeStanza);
         s.setColore(nomeLampadina, colore);
 
