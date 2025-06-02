@@ -2,6 +2,7 @@ package stellino.marco.casajavafx;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import javafx.scene.paint.Color;
 import javafx.collections.FXCollections;
@@ -42,6 +43,9 @@ public class CasaJFXController {
     private static final int GRID_START = 50;
     private static final int GRID_STEP = 50;
     private static final int GRID_TICK_SIZE = 5;
+
+    private boolean isAddingOutlet = false;
+    private Presa tempPresa;
 
     private String currentLightName;
     private String currentRoomName;
@@ -107,6 +111,7 @@ public class CasaJFXController {
         // Inizialmente, nessun controllo lampadina è visibile
         updateLightControls(null, null);
         updateRoomsList(); // Popola la lista delle stanze all'avvio
+        houseCanvas.setOnMouseClicked(this::handleCanvasClick);
     }
 
     @FXML
@@ -129,6 +134,42 @@ public class CasaJFXController {
         } catch (Exception e) {
             showError("Errore nello spegnimento", "Non è stato possibile spegnere tutte le lampadine: " + e.getMessage());
         }
+    }
+
+    @FXML
+    protected void onStartOutletPositioning() {
+        isAddingOutlet = true;
+        tempPresa = null;
+        showInfo("Posizionamento Presa", "Clicca sulla mappa per posizionare la presa");
+    }
+
+    private void handleCanvasClick(MouseEvent event) {
+        if (!isAddingOutlet) return;
+
+        int x = (int) event.getX();
+        int y = (int) event.getY();
+
+        outletXField.setText(String.valueOf(x));
+        outletYField.setText(String.valueOf(y));
+
+        // Mostra un'anteprima visiva
+        GraphicsContext gc = houseCanvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, houseCanvas.getWidth(), houseCanvas.getHeight());
+        updateHouseLayout();
+
+        gc.setFill(Color.RED);
+        gc.fillOval(x - 5, y - 5, 10, 10);
+
+        isAddingOutlet = false;
+    }
+
+    @FXML
+    protected void onConfirmOutletPosition() {
+        if (outletXField.getText().isEmpty() || outletYField.getText().isEmpty()) {
+            showError("Errore", "Posizione non valida");
+            return;
+        }
+        onAddOutletClick();  // Chiama la funzione esistente
     }
 
     @FXML

@@ -41,8 +41,12 @@
                 <Button text="Aggiungi" onAction="#onAddRoomClick"/>
             </HBox>
             <ListView fx:id="roomList" prefHeight="200"/>
-            
+
             <Text text="Gestione Prese"/>
+            <HBox spacing="5">
+                <Button text="Posiziona sulla Mappa" onAction="#onStartOutletPositioning"/>
+                <Button text="Conferma Posizione" onAction="#onConfirmOutletPosition"/>
+            </HBox>
             <TextField fx:id="outletNameField" promptText="Nome Presa"/>
             <HBox spacing="5">
                 <TextField fx:id="outletXField" promptText="X" prefWidth="60"/>
@@ -50,7 +54,7 @@
             </HBox>
             <Button text="Aggiungi Presa" onAction="#onAddOutletClick"/>
             <ListView fx:id="outletList" prefHeight="150"/>
-            
+
             <Text text="Gestione Luci"/>
             <TextField fx:id="lightNameField" promptText="Nome Lampadina"/>
             <ComboBox fx:id="outletComboBox" promptText="Seleziona Presa"/>
