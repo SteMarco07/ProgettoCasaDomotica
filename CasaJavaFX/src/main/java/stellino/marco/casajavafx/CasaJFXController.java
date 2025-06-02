@@ -3,6 +3,7 @@ package stellino.marco.casajavafx;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.paint.Color;
 import javafx.collections.FXCollections;
@@ -20,6 +21,7 @@ import java.io.File;
 import Eccezioni.*;
 
 public class CasaJFXController {
+
     private SistemaDomotico sistema;
 
     @FXML private Text totalPowerText;
@@ -39,6 +41,17 @@ public class CasaJFXController {
     @FXML private TextField outletXField;
     @FXML private TextField outletYField;
     @FXML private VBox lightControlsBox;
+    @FXML private TextField powerField;
+    @FXML private TextField brightnessField;
+
+
+
+    // Campi della gestione delle stanze
+    @FXML private HBox HboxRadioRoom;
+    @FXML private Button BtnAddRoom, BtnRemuveRoom;
+    @FXML private RadioButton RdbAddRoom, RdbRemuveRoom;
+    @FXML private HBox buttonContainer;
+
 
     private static final int GRID_START = 50;
     private static final int GRID_STEP = 50;
@@ -54,8 +67,6 @@ public class CasaJFXController {
     public void initialize() {
         sistema = new SistemaDomotico();
 
-        // Carica l'immagine di sfondo della casa
-        // Assicurati che "casa.jpg" si trovi nella stessa directory del file FXML
         Image img = new Image(getClass().getResourceAsStream("casa.jpg"));
         houseImage.setImage(img);
 
@@ -108,11 +119,30 @@ public class CasaJFXController {
 
         updateTotalPower();
         updateHouseLayout();
-        // Inizialmente, nessun controllo lampadina è visibile
-        updateLightControls(null, null);
+        // Inizialmente, nessun controllo lampadina è visibile updateLightControls(null, null);
         updateRoomsList(); // Popola la lista delle stanze all'avvio
         houseCanvas.setOnMouseClicked(this::handleCanvasClick);
+
+        ToggleGroup group = new ToggleGroup();
+        RdbAddRoom.setToggleGroup(group);
+        RdbRemuveRoom.setToggleGroup(group);
+        RdbAddRoom.setSelected(true);
+        RdbAddRoom.setSelected(true);
+
+        // Inizializza con il pulsante Aggiungi
+        buttonContainer.getChildren().clear();
+        buttonContainer.getChildren().add(BtnAddRoom);
+
+        group.selectedToggleProperty().addListener((o, old, newValue) -> {
+            buttonContainer.getChildren().clear();
+            if (newValue == RdbAddRoom) {
+                buttonContainer.getChildren().add(BtnAddRoom);
+            } else if (newValue == RdbRemuveRoom) {
+                buttonContainer.getChildren().add(BtnRemuveRoom);
+            }
+        });
     }
+
 
     @FXML
     protected void onTurnAllOnClick() {
@@ -239,6 +269,8 @@ public class CasaJFXController {
         String selectedRoom = roomList.getSelectionModel().getSelectedItem();
         String selectedOutlet = outletComboBox.getValue();
         String lightName = lightNameField.getText().trim();
+        int power = !powerField.getText().trim().isEmpty() ? Integer.parseInt(powerField.getText().trim()) : 60;
+
 
         if (selectedRoom == null || selectedOutlet == null) {
             showError("Selezione Richiesta", "Per favore, seleziona sia una stanza che una presa.");
@@ -250,11 +282,14 @@ public class CasaJFXController {
             return;
         }
 
+
+
         try {
-            Lampadina light = new Lampadina(lightName, 60); // Esempio: lampadina da 60W
+            Lampadina light = new Lampadina(lightName, power); // Esempio: lampadina da 60W
             sistema.aggiungiLampadina(selectedRoom, selectedOutlet, light);
             updateLightsList(); // Aggiorna la lista delle lampadine
             lightNameField.clear();
+            powerField.clear();
             updateHouseLayout();
         } catch (StanzaNonTrovata | PresaNonTrovata | PresaOccupata | LampadinaEsistente e) {
             showError("Errore Aggiunta Lampadina", e.getMessage());

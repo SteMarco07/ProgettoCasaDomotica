@@ -1,92 +1,143 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Text?>
-<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="stellino.marco.casajavafx.CasaJFXController">
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="stellino.marco.casajavafx.CasaJFXController">
     <top>
-        <HBox spacing="20" alignment="CENTER">
+        <HBox alignment="CENTER" spacing="20">
             <padding>
-                <Insets top="10" bottom="10" left="20" right="20"/>
+                <Insets bottom="10" left="20" right="20" top="10" />
             </padding>
-            <Text styleClass="title" text="Sistema Domotico"/>
+            <Text styleClass="title" text="Sistema Domotico" />
             <Region HBox.hgrow="ALWAYS" />
-            <HBox spacing="10" alignment="CENTER">
-                <Button text="Accendi Tutto" onAction="#onTurnAllOnClick" styleClass="system-button"/>
-                <Button text="Spegni Tutto" onAction="#onTurnAllOffClick" styleClass="system-button"/>
-                <Text fx:id="totalPowerText" text="Potenza Totale: 0W"/>
+            <HBox alignment="CENTER" spacing="10">
+                <Button onAction="#onTurnAllOnClick" styleClass="system-button" text="Accendi Tutto" />
+                <Button onAction="#onTurnAllOffClick" styleClass="system-button" text="Spegni Tutto" />
+                <Text fx:id="totalPowerText" text="Potenza Totale: 0W" />
             </HBox>
             <Region HBox.hgrow="ALWAYS" />
-            <HBox spacing="10" alignment="CENTER">
-                <Button text="Salva ed Esci" onAction="#onSaveAndExitClick" styleClass="system-button"/>
-                <Button text="Salva CSV" onAction="#onSaveCSVClick" styleClass="system-button"/>
+            <HBox alignment="CENTER" spacing="10">
+                <Button onAction="#onSaveAndExitClick" styleClass="system-button" text="Salva ed Esci" />
+                <Button onAction="#onSaveCSVClick" styleClass="system-button" text="Salva CSV" />
             </HBox>
         </HBox>
     </top>
 
     <left>
         <VBox spacing="10" styleClass="side-panel">
+
             <padding>
-                <Insets top="10" bottom="10" left="10" right="10"/>
+                <Insets bottom="10" left="20" right="10" top="10" />
             </padding>
-            <Text text="Gestione Stanze"/>
-            <TextField fx:id="roomNameField" promptText="Nome Stanza"/>
-            <HBox spacing="5">
-                <Button text="Aggiungi" onAction="#onAddRoomClick"/>
-            </HBox>
-            <ListView fx:id="roomList" prefHeight="200"/>
 
-            <Text text="Gestione Prese"/>
-            <HBox spacing="5">
-                <Button text="Posiziona sulla Mappa" onAction="#onStartOutletPositioning"/>
-                <Button text="Conferma Posizione" onAction="#onConfirmOutletPosition"/>
-            </HBox>
-            <TextField fx:id="outletNameField" promptText="Nome Presa"/>
-            <HBox spacing="5">
-                <TextField fx:id="outletXField" promptText="X" prefWidth="60"/>
-                <TextField fx:id="outletYField" promptText="Y" prefWidth="60"/>
-            </HBox>
-            <Button text="Aggiungi Presa" onAction="#onAddOutletClick"/>
-            <ListView fx:id="outletList" prefHeight="150"/>
+            <!-- Sezione dedicata alla gestione delle stanze -->
+            <VBox alignment="CENTER_LEFT" spacing="10">
+                <Text text="Gestione Stanze">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Text>
+                <HBox alignment="CENTER" spacing="10.0" fx:id="HboxRadioRoom">
+                    <RadioButton mnemonicParsing="false" text="Aggiungi" fx:id="RdbAddRoom"/>
+                    <RadioButton mnemonicParsing="false" text="Rimuovi" fx:id="RdbRemuveRoom"/>
+                    <!-- Spacer per spingere il contenitore a destra -->
+                    <Region HBox.hgrow="ALWAYS" />
+                    <!-- Contenitore dinamico per il pulsante -->
+                    <HBox fx:id="buttonContainer"/>
+                        <Button onAction="#onAddRoomClick" text="Aggiungi" fx:id="BtnAddRoom"/>
+                        <Button text="Rimuovi" fx:id="BtnRemuveRoom"/>
+                    </HBox>
+                <TextField fx:id="roomNameField" promptText="Nome Stanza" />
+                <ListView fx:id="roomList" prefHeight="200" />
+            </VBox>
 
-            <Text text="Gestione Luci"/>
-            <TextField fx:id="lightNameField" promptText="Nome Lampadina"/>
-            <ComboBox fx:id="outletComboBox" promptText="Seleziona Presa"/>
-            <Button text="Aggiungi Lampadina" onAction="#onAddLightClick"/>
-            <ListView fx:id="lightList" prefHeight="150"/>
+            <!-- Sezione dedicata alla gestione delle prese -->
+            <VBox alignment="CENTER_LEFT" spacing="10">
+                <Text text="Gestione Prese">
+               <font>
+                  <Font size="18.0" />
+               </font></Text>
+
+                <TextField fx:id="outletNameField" promptText="Nome Presa" />
+                <HBox spacing="5">
+                    <Button onAction="#onStartOutletPositioning" text="Posiziona sulla Mappa" />
+                    <Button onAction="#onConfirmOutletPosition" text="Conferma Posizione" />
+                </HBox>
+                <HBox spacing="5">
+                    <TextField fx:id="outletXField" prefWidth="60" promptText="X" />
+                    <TextField fx:id="outletYField" prefWidth="60" promptText="Y" />
+                </HBox>
+                <Button onAction="#onAddOutletClick" text="Aggiungi Presa" />
+                <ListView fx:id="outletList" prefHeight="150" />
+            <VBox.margin>
+               <Insets top="10.0" />
+            </VBox.margin>
+            </VBox>
+
+            <!-- Sezione dedicata alla gestione delle lampadine -->
+            <VBox alignment="CENTER_LEFT" spacing="10">
+                <Text text="Gestione Luci">
+               <font>
+                  <Font size="18.0" />
+               </font></Text>
+                <TextField fx:id="lightNameField" promptText="Nome Lampadina" />
+                <HBox spacing="5">
+                    <TextField fx:id="powerField" promptText="Potenza Lampadina" />
+                    <ComboBox fx:id="outletComboBox" promptText="Seleziona Presa" />
+                </HBox>
+
+                <Button onAction="#onAddLightClick" text="Aggiungi Lampadina" />
+                <ListView fx:id="lightList" prefHeight="150" />
+            <VBox.margin>
+               <Insets top="10.0" />
+            </VBox.margin>
+            </VBox>
+
         </VBox>
     </left>
 
     <center>
         <StackPane>
-            <ImageView fx:id="houseImage" fitWidth="800" fitHeight="600" preserveRatio="true"/>
-            <Canvas fx:id="houseCanvas" width="800" height="600"/>
+            <ImageView fx:id="houseImage" fitHeight="600" fitWidth="800" preserveRatio="true" />
+            <Canvas fx:id="houseCanvas" height="600" width="800" />
         </StackPane>
     </center>
 
     <right>
         <VBox spacing="10" styleClass="side-panel">
             <padding>
-                <Insets top="10" bottom="10" left="10" right="10"/>
+                <Insets bottom="10" left="10" right="10" top="10" />
             </padding>
-            <Text fx:id="selectedRoomText" text="Nessuna stanza selezionata"/>
-            <VBox fx:id="lightControlsBox" visible="false" managed="false">
-                <Text text="Controlli Lampadina"/>
-                <HBox spacing="10" alignment="CENTER">
-                    <VBox spacing="5" alignment="CENTER">
-                        <Text text="Luminosità"/>
-                        <Slider fx:id="brightnessSlider" min="0" max="100" value="50" showTickLabels="true"/>
+            <Text fx:id="selectedRoomText" text="Nessuna stanza selezionata" />
+            <VBox fx:id="lightControlsBox" managed="false" visible="false">
+                <Text text="Controlli Lampadina" />
+                <HBox alignment="CENTER" spacing="10">
+                    <VBox alignment="CENTER" spacing="5">
+                        <Text text="Luminosità" />
+                        <Slider fx:id="brightnessSlider" max="100" min="0" showTickLabels="true" value="50" />
                     </VBox>
                 </HBox>
-                <Text text="Colore"/>
-                <ColorPicker fx:id="lightColorPicker"/>
-                <ToggleButton fx:id="lightToggle" text="Accendi/Spegni" maxWidth="Infinity"/>
+                <Text text="Colore" />
+                <ColorPicker fx:id="lightColorPicker" />
+                <ToggleButton fx:id="lightToggle" maxWidth="Infinity" text="Accendi/Spegni" />
             </VBox>
         </VBox>
     </right>
