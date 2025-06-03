@@ -57,14 +57,14 @@
                 </Text>
                 <HBox alignment="CENTER" spacing="10.0">
                     <RadioButton mnemonicParsing="false" text="Aggiungi" fx:id="RdbAddRoom"/>
-                    <RadioButton mnemonicParsing="false" text="Rimuovi" fx:id="RdbRemuveRoom"/>
+                    <RadioButton mnemonicParsing="false" text="Rimuovi" fx:id="RdbRemoveRoom"/>
                     <Region HBox.hgrow="ALWAYS"/>
                 </HBox>
                 <TextField fx:id="roomNameField" promptText="Nome Stanza" />
                 <!-- Contenitore dinamico per il pulsante -->
                 <HBox fx:id="buttonContainerRoom">
                     <Button onAction="#onAddRoomClick" text="Aggiungi" fx:id="BtnAddRoom"/>
-                    <Button onAction="#onRemuveRoomClick" text="Rimuovi" fx:id="BtnRemuveRoom"/>
+                    <Button onAction="#onRemoveRoomClick" text="Rimuovi" fx:id="BtnRemoveRoom"/>
                 </HBox>
                 <ListView fx:id="roomList" prefHeight="200" />
             </VBox>
@@ -78,14 +78,14 @@
 
                 <HBox alignment="CENTER" spacing="10.0">
                     <RadioButton mnemonicParsing="false" text="Aggiungi" fx:id="RdbAddOutlet"/>
-                    <RadioButton mnemonicParsing="false" text="Rimuovi" fx:id="RdbRemuveOutlet"/>
+                    <RadioButton mnemonicParsing="false" text="Rimuovi" fx:id="RdbRemoveOutlet"/>
                     <Region HBox.hgrow="ALWAYS"/>
                 </HBox>
                 <TextField fx:id="outletNameField" promptText="Nome Presa" />
                 <HBox fx:id="buttonContainerOutlet">
 
                     <!-- Sezione dedicata all'aggiunta delle prese -->
-                    <VBox spacing="5" fx:id="VBoxAddOutlet">
+                    <VBox fx:id="VBoxAddOutlet" spacing="5">
                         <HBox spacing="5">
                             <Button onAction="#onStartOutletPositioning" text="Posiziona sulla Mappa" />
                             <Button onAction="#onConfirmOutletPosition" text="Conferma Posizione" />
@@ -98,7 +98,7 @@
                     </VBox>
 
                     <!-- Sezione dedicata alla rimozione delle prese -->
-                    <Button onAction="#onRemuveOutletClick" text="Rimuovi" fx:id="BtnRemuveOutlet"/>
+                    <Button onAction="#onRemoveOutletClick" text="Rimuovi Presa" fx:id="BtnRemoveOutlet"/>
                 </HBox>
                 <ListView fx:id="outletList" prefHeight="150" />
             <VBox.margin>
@@ -112,13 +112,30 @@
                <font>
                   <Font size="18.0" />
                </font></Text>
-                <TextField fx:id="lightNameField" promptText="Nome Lampadina" />
-                <HBox spacing="5">
-                    <TextField fx:id="powerField" promptText="Potenza Lampadina" />
-                    <ComboBox fx:id="outletComboBox" promptText="Seleziona Presa" />
+
+                <HBox alignment="CENTER" spacing="10.0">
+                    <RadioButton mnemonicParsing="false" text="Aggiungi" fx:id="RdbAddLight"/>
+                    <RadioButton mnemonicParsing="false" text="Rimuovi" fx:id="RdbRemoveLight"/>
+                    <Region HBox.hgrow="ALWAYS"/>
                 </HBox>
 
-                <Button onAction="#onAddLightClick" text="Aggiungi Lampadina" />
+                <TextField fx:id="lightNameField" promptText="Nome Lampadina" />
+
+                <HBox fx:id="buttonContainerLight">
+
+                    <!-- Sezione dedicata all'aggiunta delle lampadine -->
+                    <VBox fx:id="VBoxAddLight" spacing="5">
+                        <HBox spacing="5">
+                            <TextField fx:id="powerField" promptText="Potenza Lampadina" />
+                            <ComboBox fx:id="outletComboBox" promptText="Seleziona Presa" />
+                        </HBox>
+                        <Button onAction="#onAddLightClick" text="Aggiungi Lampadina" />
+                    </VBox>
+
+                    <!-- Sezione dedicata alla rimozione delle lampadine -->
+                    <Button onAction="#onRemoveLightClick" text="Rimuovi Lampadina" fx:id="BtnRemoveLight"/>
+                </HBox>
+
                 <ListView fx:id="lightList" prefHeight="150" />
             <VBox.margin>
                <Insets top="10.0" />

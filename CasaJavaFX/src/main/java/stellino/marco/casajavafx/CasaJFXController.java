@@ -48,16 +48,22 @@ public class CasaJFXController {
 
 
     // Campi della gestione delle stanze
-    @FXML private Button BtnAddRoom, BtnRemuveRoom;
-    @FXML private RadioButton RdbAddRoom, RdbRemuveRoom;
+    @FXML private Button BtnAddRoom, BtnRemoveRoom;
+    @FXML private RadioButton RdbAddRoom, RdbRemoveRoom;
     @FXML private HBox buttonContainerRoom;
 
 
-    // Campi della gestione delle stanze
-    @FXML private Button BtnRemuveOutlet;
+    // Campi della gestione delle prese
+    @FXML private Button BtnRemoveOutlet;
     @FXML private VBox VBoxAddOutlet;
-    @FXML private RadioButton RdbAddOutlet, RdbRemuveOutlet;
+    @FXML private RadioButton RdbAddOutlet, RdbRemoveOutlet;
     @FXML private HBox buttonContainerOutlet;
+
+    // Campi della gestione delle lampadine
+    @FXML private Button BtnRemoveLight;
+    @FXML private VBox VBoxAddLight;
+    @FXML private RadioButton RdbAddLight, RdbRemoveLight;
+    @FXML private HBox buttonContainerLight;
 
 
     private static final int GRID_START = 50;
@@ -134,7 +140,7 @@ public class CasaJFXController {
         // Gestione dei menù di aggiunta e rimozione delle stanze
         ToggleGroup groupRoom = new ToggleGroup();
         RdbAddRoom.setToggleGroup(groupRoom);
-        RdbRemuveRoom.setToggleGroup(groupRoom);
+        RdbRemoveRoom.setToggleGroup(groupRoom);
         RdbAddRoom.setSelected(true);
 
         buttonContainerRoom.getChildren().clear();
@@ -144,17 +150,16 @@ public class CasaJFXController {
             buttonContainerRoom.getChildren().clear();
             if (newValue == RdbAddRoom) {
                 buttonContainerRoom.getChildren().add(BtnAddRoom);
-            } else if (newValue == RdbRemuveRoom) {
-                buttonContainerRoom.getChildren().add(BtnRemuveRoom);
+            } else if (newValue == RdbRemoveRoom) {
+                buttonContainerRoom.getChildren().add(BtnRemoveRoom);
             }
-        });
-
-        // Gestione dei menù di aggiunta e rimozione delle prese
+        });        // Gestione dei menù di aggiunta e rimozione delle prese
         ToggleGroup groupOutlet = new ToggleGroup();
         RdbAddOutlet.setToggleGroup(groupOutlet);
-        RdbRemuveOutlet.setToggleGroup(groupOutlet);
+        RdbRemoveOutlet.setToggleGroup(groupOutlet);
+        
+        // Imposta la selezione di default e mostra il contenuto appropriato
         RdbAddOutlet.setSelected(true);
-
         buttonContainerOutlet.getChildren().clear();
         buttonContainerOutlet.getChildren().add(VBoxAddOutlet);
 
@@ -162,13 +167,35 @@ public class CasaJFXController {
             buttonContainerOutlet.getChildren().clear();
             if (newValue == RdbAddOutlet) {
                 buttonContainerOutlet.getChildren().add(VBoxAddOutlet);
-            } else if (newValue == RdbRemuveOutlet) {
-                buttonContainerOutlet.getChildren().add(BtnRemuveOutlet);
+            } else if (newValue == RdbRemoveOutlet) {
+                buttonContainerOutlet.getChildren().add(BtnRemoveOutlet);
+            }
+        });
+
+        // Gestione dei menù di aggiunta e rimozione delle lampadine
+        ToggleGroup groupLight = new ToggleGroup();
+        RdbAddLight.setToggleGroup(groupLight);      // Corretto: usa groupLight invece di groupOutlet
+        RdbRemoveLight.setToggleGroup(groupLight);   // Corretto: usa groupLight invece di groupOutlet
+        
+        // Imposta la selezione di default e mostra il contenuto appropriato
+        RdbAddLight.setSelected(true);
+
+        buttonContainerLight.getChildren().clear();
+        buttonContainerLight.getChildren().add(VBoxAddLight);
+
+        groupLight.selectedToggleProperty().addListener((o, old, newValue) -> {
+            buttonContainerLight.getChildren().clear();
+            if (newValue == RdbAddLight) {
+                buttonContainerLight.getChildren().add(VBoxAddLight);
+            } else if (newValue == RdbRemoveLight) {
+                buttonContainerLight.getChildren().add(BtnRemoveLight);
             }
         });
 
 
+
     }
+
 
 
     @FXML
@@ -248,7 +275,7 @@ public class CasaJFXController {
     }
 
     @FXML
-    private void onRemuveRoomClick(ActionEvent actionEvent) {
+    private void onRemoveRoomClick(ActionEvent actionEvent) {
         String roomName = roomNameField.getText().trim();
         if (roomName.isEmpty()) {
             showError("Nome Stanza Non Valido", "Per favore, inserisci un nome per la stanza.");
@@ -264,7 +291,7 @@ public class CasaJFXController {
             showError("Stanza Non Trovata", "Una stanza con questo nome non esiste.");
         }
     }
-    
+
     @FXML
     protected void onAddOutletClick() {
         String selectedRoom = roomList.getSelectionModel().getSelectedItem();
@@ -310,7 +337,7 @@ public class CasaJFXController {
     }
 
     @FXML
-    private void onRemuveOutletClick(ActionEvent actionEvent) {
+    private void onRemoveOutletClick(ActionEvent actionEvent) {
         String roomName = roomList.getSelectionModel().getSelectedItem();
         String outletName = outletNameField.getText().trim();
         if (roomName.isEmpty()) {
@@ -365,6 +392,31 @@ public class CasaJFXController {
             updateHouseLayout();
         } catch (StanzaNonTrovata | PresaNonTrovata | PresaOccupata | LampadinaEsistente e) {
             showError("Errore Aggiunta Lampadina", e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onRemoveLightClick() {
+        String selectedRoom = roomList.getSelectionModel().getSelectedItem();
+        String lightName = lightNameField.getText().trim();
+
+        if (selectedRoom == null || selectedRoom.isEmpty()) {
+            showError("Errore", "Seleziona una stanza prima di procedere");
+            return;
+        }
+
+        if (lightName.isEmpty()) {
+            showError("Errore", "Inserisci il nome della lampadina da rimuovere");
+            return;
+        }
+
+        try {
+            sistema.rimuoviLampadina(selectedRoom, lightName);
+            lightNameField.clear();
+            updateLightsList();
+            updateHouseLayout();
+        } catch (StanzaNonTrovata | LampadinaNonTrovata e) {
+            showError("Errore", e.getMessage());
         }
     }
 
