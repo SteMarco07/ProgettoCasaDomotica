@@ -1,5 +1,6 @@
 package stellino.marco.casajavafx;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
@@ -47,10 +48,16 @@ public class CasaJFXController {
 
 
     // Campi della gestione delle stanze
-    @FXML private HBox HboxRadioRoom;
     @FXML private Button BtnAddRoom, BtnRemuveRoom;
     @FXML private RadioButton RdbAddRoom, RdbRemuveRoom;
-    @FXML private HBox buttonContainer;
+    @FXML private HBox buttonContainerRoom;
+
+
+    // Campi della gestione delle stanze
+    @FXML private Button BtnRemuveOutlet;
+    @FXML private VBox VBoxAddOutlet;
+    @FXML private RadioButton RdbAddOutlet, RdbRemuveOutlet;
+    @FXML private HBox buttonContainerOutlet;
 
 
     private static final int GRID_START = 50;
@@ -123,24 +130,44 @@ public class CasaJFXController {
         updateRoomsList(); // Popola la lista delle stanze all'avvio
         houseCanvas.setOnMouseClicked(this::handleCanvasClick);
 
-        ToggleGroup group = new ToggleGroup();
-        RdbAddRoom.setToggleGroup(group);
-        RdbRemuveRoom.setToggleGroup(group);
-        RdbAddRoom.setSelected(true);
+
+        // Gestione dei menù di aggiunta e rimozione delle stanze
+        ToggleGroup groupRoom = new ToggleGroup();
+        RdbAddRoom.setToggleGroup(groupRoom);
+        RdbRemuveRoom.setToggleGroup(groupRoom);
         RdbAddRoom.setSelected(true);
 
-        // Inizializza con il pulsante Aggiungi
-        buttonContainer.getChildren().clear();
-        buttonContainer.getChildren().add(BtnAddRoom);
+        buttonContainerRoom.getChildren().clear();
+        buttonContainerRoom.getChildren().add(BtnAddRoom);
 
-        group.selectedToggleProperty().addListener((o, old, newValue) -> {
-            buttonContainer.getChildren().clear();
+        groupRoom.selectedToggleProperty().addListener((o, old, newValue) -> {
+            buttonContainerRoom.getChildren().clear();
             if (newValue == RdbAddRoom) {
-                buttonContainer.getChildren().add(BtnAddRoom);
+                buttonContainerRoom.getChildren().add(BtnAddRoom);
             } else if (newValue == RdbRemuveRoom) {
-                buttonContainer.getChildren().add(BtnRemuveRoom);
+                buttonContainerRoom.getChildren().add(BtnRemuveRoom);
             }
         });
+
+        // Gestione dei menù di aggiunta e rimozione delle prese
+        ToggleGroup groupOutlet = new ToggleGroup();
+        RdbAddOutlet.setToggleGroup(groupOutlet);
+        RdbRemuveOutlet.setToggleGroup(groupOutlet);
+        RdbAddOutlet.setSelected(true);
+
+        buttonContainerOutlet.getChildren().clear();
+        buttonContainerOutlet.getChildren().add(VBoxAddOutlet);
+
+        groupOutlet.selectedToggleProperty().addListener((o, old, newValue) -> {
+            buttonContainerOutlet.getChildren().clear();
+            if (newValue == RdbAddOutlet) {
+                buttonContainerOutlet.getChildren().add(VBoxAddOutlet);
+            } else if (newValue == RdbRemuveOutlet) {
+                buttonContainerOutlet.getChildren().add(BtnRemuveOutlet);
+            }
+        });
+
+
     }
 
 
@@ -219,6 +246,24 @@ public class CasaJFXController {
             showError("Stanza Già Esistente", "Una stanza con questo nome esiste già.");
         }
     }
+
+    @FXML
+    private void onRemuveRoomClick(ActionEvent actionEvent) {
+        String roomName = roomNameField.getText().trim();
+        if (roomName.isEmpty()) {
+            showError("Nome Stanza Non Valido", "Per favore, inserisci un nome per la stanza.");
+            return;
+        }
+
+        try {
+            sistema.rimuoviStanza(roomName);
+            updateRoomsList();
+            roomNameField.clear();
+            updateHouseLayout();
+        } catch (StanzaNonTrovata e) {
+            showError("Stanza Non Trovata", "Una stanza con questo nome non esiste.");
+        }
+    }
     
     @FXML
     protected void onAddOutletClick() {
@@ -261,6 +306,33 @@ public class CasaJFXController {
             showError("Posizione Non Valida", "Le coordinate X e Y devono essere numeri.");
         } catch (StanzaNonTrovata | PresaEsistente e) {
             showError("Errore Aggiunta Presa", e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onRemuveOutletClick(ActionEvent actionEvent) {
+        String roomName = roomList.getSelectionModel().getSelectedItem();
+        String outletName = outletNameField.getText().trim();
+        if (roomName.isEmpty()) {
+            showError("Nome Stanza Non Valido", "Per favore, inserisci un nome per la stanza.");
+            return;
+        }
+
+        if (outletName.isEmpty()) {
+            showError("Nome Presa Non Valido", "Per favore, inserisci un nome per la presa.");
+        }
+
+        try {
+            sistema.rimuoviPresa(roomName, outletName);
+            outletNameField.clear();
+            updateTotalPower();
+            updateLightsList();
+            updateOutletsList(roomName);
+            updateHouseLayout();
+        } catch (StanzaNonTrovata e) {
+            showError("Stanza Non Trovata", "Una stanza con questo nome non esiste.");
+        } catch (PresaNonTrovata e) {
+            showError("Presa Non Trovata", "Una presa con questo nome non esiste.");
         }
     }
 
@@ -555,6 +627,7 @@ public class CasaJFXController {
     protected void onSaveAndExitClick() {
         try {
             sistema.serializza(getFilePath("SistemaDomotico.bin"));
+            sistema.salvaInFileCSV(getFilePath("SistemaDomotico.csv"));
             showInfo("Salvataggio Completato", "Il sistema è stato salvato correttamente.");
             System.exit(0);
         } catch (IOException e) {
@@ -579,4 +652,5 @@ public class CasaJFXController {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
 }
